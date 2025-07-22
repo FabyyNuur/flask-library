@@ -1,0 +1,79 @@
+{% if items %} {% for item in items %}
+<div class="cart-item">
+  <img
+    src="{{ item.livre.img_url or url_for('static', filename='img/biblio1.jpeg') }}"
+    alt="{{ item.livre.title }}"
+    class="cart-item-image"
+  />
+
+  <div class="cart-item-content">
+    <h3 class="cart-item-title">{{ item.livre.title }}</h3>
+    <p class="book-author mb-2">{{ item.livre.auteur }}</p>
+
+    <div class="cart-item-controls">
+      <div class="quantity-control">
+        <button class="quantity-btn" type="button">-</button>
+        <span class="quantity-display">{{ item.nombre }}</span>
+        <button class="quantity-btn" type="button">+</button>
+      </div>
+
+      <div class="ml-auto">
+        <p class="book-price mb-2">
+          {{ (item.nombre * item.livre.prix)|round(2) }} CFA
+        </p>
+        <a
+          href="{{ url_for('sup_du_panier', id_livre=item.livre.id) }}"
+          class="book-btn book-btn-secondary"
+          onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?')"
+        >
+          <i class="fas fa-trash"></i>
+          Supprimer
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Total -->
+<div class="cart-total p-6 bg-gray-50 rounded-xl mt-6">
+  <div class="space-between text-xl font-bold text-primary mb-4">
+    <span>Total:</span>
+    <span>{{ total|round(2) }} CFA</span>
+  </div>
+
+  <div class="flex gap-4">
+    <a href="/shop" class="book-btn book-btn-secondary flex-1">
+      <i class="fas fa-arrow-left"></i>
+      Continuer l'achat
+    </a>
+    <a
+      href="{{ url_for('ajoutCommande', panier_id=id) }}"
+      class="book-btn book-btn-primary flex-1"
+    >
+      <i class="fas fa-credit-card"></i>
+      Commander
+    </a>
+  </div>
+</div>
+{% else %}
+<!-- Panier vide -->
+<div class="center-flex flex-col py-16">
+  <i class="fas fa-shopping-cart text-6xl text-gray-300 mb-4"></i>
+  <h3 class="text-2xl font-bold text-gray-600 mb-2">Votre panier est vide</h3>
+  <p class="text-gray-500 mb-6">
+    Découvrez notre collection et ajoutez des livres à votre panier
+  </p>
+  <a href="/shop" class="book-btn book-btn-primary">
+    <i class="fas fa-store"></i>
+    Découvrir la boutique
+  </a>
+</div>
+{% endif %}
+
+<script>
+  function updateQuantity(itemId, change) {
+    // Fonction pour mettre à jour la quantité (à implémenter côté backend)
+    console.log("Update quantity for item", itemId, "by", change);
+  }
+</script>

@@ -1,0 +1,171 @@
+<div class="orders-container">
+  <div class="page-header">
+    <h1 class="page-title">📋 Mes Commandes</h1>
+    <p class="page-description">
+      Suivez l'état de vos commandes et consultez l'historique
+    </p>
+  </div>
+
+  {% if commandes %}
+  <div class="orders-grid">
+    {% for commande in commandes %}
+    <div class="order-card">
+      <!-- En-tête de la commande -->
+      <div class="order-header">
+        <div class="order-number">📦 Commande #{{ commande.id }}</div>
+        <div
+          class="order-status {% if commande.statut == 'En Cours' %}en-cours{% elif commande.statut == 'Validée' %}validee{% else %}annulee{% endif %}"
+        >
+          {{ commande.statut }}
+        </div>
+      </div>
+
+      <!-- Corps de la commande -->
+      <div class="order-body">
+        <div class="order-info">
+          <div class="order-info-item">
+            <span class="order-info-label">Client</span>
+            <span class="order-info-value">{{ user.username }}</span>
+          </div>
+          <div class="order-info-item">
+            <span class="order-info-label">Date</span>
+            <span class="order-info-value"
+              >{{ commande.date_commande.strftime('%d/%m/%Y') }}</span
+            >
+          </div>
+          <div class="order-info-item">
+            <span class="order-info-label">Articles</span>
+            <span class="order-info-value"
+              >{{ commande.panier.items|length }} livre(s)</span
+            >
+          </div>
+          <div class="order-info-item">
+            <span class="order-info-label">Total</span>
+            <span class="order-info-value order-total"
+              >{{ commande.total }} FCFA</span
+            >
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="order-actions">
+          {% if commande.statut == 'En Cours' %}
+          <a
+            href="{{ url_for('sup_commande', panier_id=commande.panier.id) }}"
+            class="btn btn-cancel btn-sm"
+          >
+            <svg
+              class="icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+            Annuler
+          </a>
+          {% endif %}
+
+          <button
+            class="btn btn-details btn-sm openModalBtn"
+            data-modal="modal-{{ commande.id }}"
+          >
+            <svg
+              class="icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              ></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              ></path>
+            </svg>
+            Voir Détails
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal pour cette commande -->
+    <div id="modal-{{ commande.id }}" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">📋 Détails Commande #{{ commande.id }}</h3>
+          <button
+            class="modal-close close"
+            data-modal="modal-{{ commande.id }}"
+          >
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="order-items">
+            {% for item in commande.panier.items %}
+            <div class="order-item">
+              <div class="order-item-info">
+                <h4 class="order-item-title">{{ item.livre.title }}</h4>
+                <div class="order-item-details">
+                  <span class="order-item-price"
+                    >{{ item.livre.prix }} FCFA</span
+                  >
+                  <span class="order-item-quantity"
+                    >Quantité: {{ item.nombre }}</span
+                  >
+                  <span class="order-item-subtotal"
+                    >Sous-total: {{ item.livre.prix * item.nombre }} FCFA</span
+                  >
+                </div>
+              </div>
+            </div>
+            {% if not loop.last %}
+            <hr class="order-item-separator" />
+            {% endif %} {% endfor %}
+          </div>
+
+          <div class="order-summary">
+            <div class="order-summary-row">
+              <span class="order-summary-label">Total de la commande:</span>
+              <span class="order-summary-value">{{ commande.total }} FCFA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📋</div>
+    <h3 class="empty-title">Aucune commande</h3>
+    <p class="empty-description">Vous n'avez pas encore passé de commande</p>
+    <a href="{{ url_for('home_client') }}" class="btn btn-primary">
+      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+        ></path>
+      </svg>
+      Commencer à acheter
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<script src="{{url_for('static',filename='js/script.js')}}"></script>
+<script src="{{url_for('static',filename='js/modal.js')}}"></script>

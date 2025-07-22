@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static',filename='css/output.css')}}">
+    <link rel="stylesheet" href="{{url_for('static',filename='css/style.css')}}">
+    <title>Créer un Compte | Nuur-Library</title>
+</head>
+<body class="log-img">
+    <!-- Overlay avec effet de flou -->
+    <div class="login-overlay"></div>
+    
+    <!-- Container principal responsive -->
+    <div class="login-container">
+        <section class="login-form-section">
+            <form class="login-form" method="POST" action="/creer-compte">
+                <!-- Logo et titre -->
+                <div class="logo-section">
+                    <img src="./../../static/img/logo-nuur.png" class="logo-img" alt="Nuur Logo" />
+                    <span class="logo-text">Nuur-Library</span>
+                    <h2 class="login-title">Créer un compte</h2>
+                </div>
+
+                <!-- Champs de formulaire -->
+                <div class="form-group">
+                    <label for="username" class="form-label">Nom d'utilisateur</label>
+                    <input type="text" id="username" name="username" class="form-input" placeholder="Choisissez un nom d'utilisateur" required />
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Mot de passe</label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="Créez un mot de passe sécurisé" required />
+                </div>
+
+                <!-- Boutons -->
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Créer le compte</button>
+                    <a href="/login" class="btn-secondary">Déjà un compte ? Se connecter</a>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+</body>
+</html>

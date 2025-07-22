@@ -1,0 +1,411 @@
+<!-- Vue Produit Modernisée -->
+<div class="container mx-auto px-6 py-8 max-w-6xl">
+    <!-- Retour -->
+    <div class="mb-6">
+        <a href="/shop" class="btn btn-outline flex items-center gap-2 w-fit">
+            <i class="fas fa-arrow-left"></i>
+            Retour à la boutique
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <!-- Image du livre -->
+        <div class="space-y-4">
+            <div class="aspect-w-3 aspect-h-4 bg-gray-100 rounded-2xl overflow-hidden shadow-xl">
+                <img src="{{ livre.img_url or url_for('static', filename='img/biblio1.jpeg') }}" 
+                     alt="{{ livre.title }}" 
+                     class="w-full h-full object-cover">
+            </div>
+            
+            <!-- Badge de disponibilité -->
+            <div class="flex justify-center">
+                {% if livre.disponible %}
+                    <span class="badge badge-success flex items-center gap-2">
+                        <i class="fas fa-check-circle"></i>
+                        Disponible en stock ({{ livre.stock }} exemplaires)
+                    </span>
+                {% else %}
+                    <span class="badge badge-error flex items-center gap-2">
+                        <i class="fas fa-times-circle"></i>
+                        Épuisé
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Informations du livre -->
+        <div class="space-y-6">
+            <!-- Titre et Auteur -->
+            <div>
+                <h1 class="text-4xl font-bold text-primary font-heading mb-3">{{ livre.title }}</h1>
+                <p class="text-xl text-gray-600 flex items-center gap-2">
+                    <i class="fas fa-user-edit text-secondary"></i>
+                    par <span class="font-semibold">{{ livre.auteur }}</span>
+                </p>
+            </div>
+
+            <!-- Prix et Évaluations -->
+            <div class="flex items-center justify-between p-6 bg-gradient-to-r from-secondary-light to-secondary rounded-2xl">
+                <div>
+                    <p class="text-3xl font-bold text-white">{{ "%.2f"|format(livre.prix) }}CFA</p>
+                    <p class="text-secondary-dark text-sm">Prix TTC</p>
+                </div>
+                {% if livre.nbr_etoiles %}
+                <div class="text-right">
+                    <div class="flex items-center gap-1 mb-1">
+                        {% for i in range(5) %}
+                            {% if i < livre.nbr_etoiles %}
+                                <i class="fas fa-star text-yellow-400 text-lg"></i>
+                            {% else %}
+                                <i class="far fa-star text-yellow-400 text-lg"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <p class="text-white text-sm">{{ livre.nbre_lecteurs or 0 }} lecteurs</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Informations détaillées -->
+            <div class="grid grid-cols-2 gap-4">
+                {% if livre.volume %}
+                <div class="bg-gray-50 p-4 rounded-xl">
+                    <p class="text-sm text-gray-600 mb-1">Volume</p>
+                    <p class="font-semibold text-primary">Tome {{ livre.volume }}</p>
+                </div>
+                {% endif %}
+                
+                {% if livre.pages %}
+                <div class="bg-gray-50 p-4 rounded-xl">
+                    <p class="text-sm text-gray-600 mb-1">Pages</p>
+                    <p class="font-semibold text-primary">{{ livre.pages }} pages</p>
+                </div>
+                {% endif %}
+                
+                {% if livre.sortie %}
+                <div class="bg-gray-50 p-4 rounded-xl">
+                    <p class="text-sm text-gray-600 mb-1">Sortie</p>
+                    <p class="font-semibold text-primary">{{ livre.sortie }}</p>
+                </div>
+                {% endif %}
+                
+                {% if livre.classement %}
+                <div class="bg-gray-50 p-4 rounded-xl">
+                    <p class="text-sm text-gray-600 mb-1">Classement</p>
+                    <p class="font-semibold text-primary">#{{ livre.classement }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Catégories -->
+            {% if livre.categories %}
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <i class="fas fa-tags text-primary"></i>
+                    Catégories
+                </h3>
+                <div class="flex flex-wrap gap-2">
+                    {% for categorie in livre.categories %}
+                        <span class="badge badge-info">{{ categorie.libelle }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Description -->
+            {% if livre.description %}
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <i class="fas fa-align-left text-primary"></i>
+                    Description
+                </h3>
+                <div class="bg-gray-50 p-6 rounded-xl">
+                    <p class="text-gray-700 leading-relaxed">{{ livre.description }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Actions -->
+            {% if current_user.is_authenticated and current_user.role != 'ADMIN' %}
+            <div class="space-y-3">
+                {% if livre.disponible %}
+                    <a href="{{ url_for('ajoutPanier', livre_id=livre.id) }}" 
+                       class="w-full btn btn-primary btn-lg flex items-center justify-center gap-3">
+                        <i class="fas fa-cart-plus"></i>
+                        Ajouter au Panier
+                    </a>
+                    
+                    <a href="{{ url_for('ajoutBiblio', livre_id=livre.id) }}" 
+                       class="w-full btn btn-outline flex items-center justify-center gap-3">
+                        <i class="fas fa-heart"></i>
+                        Ajouter aux Favoris
+                    </a>
+                {% else %}
+                    <button class="w-full btn btn-error btn-lg cursor-not-allowed opacity-50" disabled>
+                        <i class="fas fa-times-circle"></i>
+                        Livre Épuisé
+                    </button>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Livres Similaires -->
+    {% if livres_similaires %}
+    <div class="mt-16">
+        <h2 class="text-3xl font-bold text-primary font-heading mb-8 text-center">
+            <i class="fas fa-book-open text-secondary mr-3"></i>
+            Vous pourriez aussi aimer
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for livre_sim in livres_similaires[:4] %}
+                <div class="book-card">
+                    <img src="{{ livre_sim.img_url or url_for('static', filename='img/biblio1.jpeg') }}" 
+                         alt="{{ livre_sim.title }}" 
+                         class="book-image">
+                    
+                    <div class="book-content">
+                        <h3 class="book-title">{{ livre_sim.title }}</h3>
+                        <p class="book-author">{{ livre_sim.auteur }}</p>
+                        <p class="book-price">{{ "%.2f"|format(livre_sim.prix) }}CFA</p>
+                        
+                        <div class="book-actions">
+                            <a href="{{ url_for('detail_livre_c', id_livre=livre_sim.id) }}" 
+                               class="book-btn book-btn-secondary">
+                                <i class="fas fa-eye"></i>
+                                Voir
+                            </a>
+                            {% if current_user.is_authenticated and current_user.role != 'ADMIN' %}
+                                <a href="{{ url_for('ajoutPanier', livre_id=livre_sim.id) }}" 
+                                   class="book-btn book-btn-primary">
+                                    <i class="fas fa-cart-plus"></i>
+                                    Panier
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.aspect-w-3 {
+    position: relative;
+    width: 100%;
+}
+
+.aspect-w-3::before {
+    content: '';
+    display: block;
+    padding-bottom: 133.333333%; /* 4:3 aspect ratio */
+}
+
+.aspect-h-4 > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+</style>
+        <div class="flex w-full transform text-left text-base transition md:my-8 md:max-w-2xl md:px-4 lg:max-w-4xl">
+          <div class="relative flex w-full items-center overflow-hidden bg-white px-4 pb-8 pt-14 shadow-2xl sm:px-6 sm:pt-8 md:p-6 lg:p-8">
+            <button type="button" class="absolute right-4 top-4 text-gray-400 hover:text-gray-500 sm:right-6 sm:top-8 md:right-6 md:top-6 lg:right-8 lg:top-8">
+              <span class="sr-only">Close</span>
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+  
+            <div class="grid w-full grid-cols-1 items-start gap-x-6 gap-y-8 sm:grid-cols-12 lg:gap-x-8">
+              <div class="aspect-h-3 aspect-w-2 overflow-hidden rounded-lg bg-gray-100 sm:col-span-4 lg:col-span-5">
+                <img src="https://tailwindui.com/img/ecommerce-images/product-quick-preview-02-detail.jpg" alt="Two each of gray, white, and black shirts arranged on table." class="object-cover object-center">
+              </div>
+              <div class="sm:col-span-8 lg:col-span-7">
+                <h2 class="text-2xl font-bold text-gray-900 sm:pr-12">Basic Tee 6-Pack</h2>
+  
+                <section aria-labelledby="information-heading" class="mt-2">
+                  <h3 id="information-heading" class="sr-only">Product information</h3>
+  
+                  <p class="text-2xl text-gray-900">$192</p>
+  
+                  <!-- Reviews -->
+                  <div class="mt-6">
+                    <h4 class="sr-only">Reviews</h4>
+                    <div class="flex items-center">
+                      <div class="flex items-center">
+                        <!-- Active: "text-gray-900", Default: "text-gray-200" -->
+                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                        </svg>
+                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                        </svg>
+                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                        </svg>
+                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                        </svg>
+                        <svg class="text-gray-200 h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                        </svg>
+                      </div>
+                      <p class="sr-only">3.9 out of 5 stars</p>
+                      <a href="#" class="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500">117 reviews</a>
+                    </div>
+                  </div>
+                </section>
+  
+                <section aria-labelledby="options-heading" class="mt-10">
+                  <h3 id="options-heading" class="sr-only">Product options</h3>
+  
+                  <form>
+                    <!-- Colors -->
+                    <div>
+                      <h4 class="text-sm font-medium text-gray-900">Color</h4>
+  
+                      <fieldset class="mt-4">
+                        <legend class="sr-only">Choose a color</legend>
+                        <span class="flex items-center space-x-3">
+                          <!--
+                            Active and Checked: "ring ring-offset-1"
+                            Not Active and Checked: "ring-2"
+                          -->
+                          <label class="relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none ring-gray-400">
+                            <input type="radio" name="color-choice" value="White" class="sr-only" aria-labelledby="color-choice-0-label">
+                            <span id="color-choice-0-label" class="sr-only">White</span>
+                            <span aria-hidden="true" class="h-8 w-8 bg-white rounded-full border border-black border-opacity-10"></span>
+                          </label>
+                          <!--
+                            Active and Checked: "ring ring-offset-1"
+                            Not Active and Checked: "ring-2"
+                          -->
+                          <label class="relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none ring-gray-400">
+                            <input type="radio" name="color-choice" value="Gray" class="sr-only" aria-labelledby="color-choice-1-label">
+                            <span id="color-choice-1-label" class="sr-only">Gray</span>
+                            <span aria-hidden="true" class="h-8 w-8 bg-gray-200 rounded-full border border-black border-opacity-10"></span>
+                          </label>
+                          <!--
+                            Active and Checked: "ring ring-offset-1"
+                            Not Active and Checked: "ring-2"
+                          -->
+                          <label class="relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none ring-gray-900">
+                            <input type="radio" name="color-choice" value="Black" class="sr-only" aria-labelledby="color-choice-2-label">
+                            <span id="color-choice-2-label" class="sr-only">Black</span>
+                            <span aria-hidden="true" class="h-8 w-8 bg-gray-900 rounded-full border border-black border-opacity-10"></span>
+                          </label>
+                        </span>
+                      </fieldset>
+                    </div>
+  
+                    <!-- Sizes -->
+                    <div class="mt-10">
+                      <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-medium text-gray-900">Size</h4>
+                        <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Size guide</a>
+                      </div>
+  
+                      <fieldset class="mt-4">
+                        <legend class="sr-only">Choose a size</legend>
+                        <div class="grid grid-cols-4 gap-4">
+                          <!-- Active: "ring-2 ring-indigo-500" -->
+                          <label class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 cursor-pointer bg-white text-gray-900 shadow-sm">
+                            <input type="radio" name="size-choice" value="XXS" class="sr-only" aria-labelledby="size-choice-0-label">
+                            <span id="size-choice-0-label">XXS</span>
+                            <!--
+                              Active: "border", Not Active: "border-2"
+                              Checked: "border-indigo-500", Not Checked: "border-transparent"
+                            -->
+                            <span class="pointer-events-none absolute -inset-px rounded-md" aria-hidden="true"></span>
+                          </label>
+                          <!-- Active: "ring-2 ring-indigo-500" -->
+                          <label class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 cursor-pointer bg-white text-gray-900 shadow-sm">
+                            <input type="radio" name="size-choice" value="XS" class="sr-only" aria-labelledby="size-choice-1-label">
+                            <span id="size-choice-1-label">XS</span>
+                            <!--
+                              Active: "border", Not Active: "border-2"
+                              Checked: "border-indigo-500", Not Checked: "border-transparent"
+                            -->
+                            <span class="pointer-events-none absolute -inset-px rounded-md" aria-hidden="true"></span>
+                          </label>
+                          <!-- Active: "ring-2 ring-indigo-500" -->
+                          <label class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 cursor-pointer bg-white text-gray-900 shadow-sm">
+                            <input type="radio" name="size-choice" value="S" class="sr-only" aria-labelledby="size-choice-2-label">
+                            <span id="size-choice-2-label">S</span>
+                            <!--
+                              Active: "border", Not Active: "border-2"
+                              Checked: "border-indigo-500", Not Checked: "border-transparent"
+                            -->
+                            <span class="pointer-events-none absolute -inset-px rounded-md" aria-hidden="true"></span>
+                          </label>
+                          <!-- Active: "ring-2 ring-indigo-500" -->
+                          <label class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 cursor-pointer bg-white text-gray-900 shadow-sm">
+                            <input type="radio" name="size-choice" value="M" class="sr-only" aria-labelledby="size-choice-3-label">
+                            <span id="size-choice-3-label">M</span>
+                            <!--
+                              Active: "border", Not Active: "border-2"
+                              Checked: "border-indigo-500", Not Checked: "border-transparent"
+                            -->
+                            <span class="pointer-events-none absolute -inset-px rounded-md" aria-hidden="true"></span>
+                          </label>
+                          <!-- Active: "ring-2 ring-indigo-500" -->
+                          <label class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 cursor-pointer bg-white text-gray-900 shadow-sm">
+                            <input type="radio" name="size-choice" value="L" class="sr-only" aria-labelledby="size-choice-4-label">
+                            <span id="size-choice-4-label">L</span>
+                            <!--
+                              Active: "border", Not Active: "border-2"
+                              Checked: "border-indigo-500", Not Checked: "border-transparent"
+                            -->
+                            <span class="pointer-events-none absolute -inset-px rounded-md" aria-hidden="true"></span>
+                          </label>
+                          <!-- Active: "ring-2 ring-indigo-500" -->
+                          <label class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 cursor-pointer bg-white text-gray-900 shadow-sm">
+                            <input type="radio" name="size-choice" value="XL" class="sr-only" aria-labelledby="size-choice-5-label">
+                            <span id="size-choice-5-label">XL</span>
+                            <!--
+                              Active: "border", Not Active: "border-2"
+                              Checked: "border-indigo-500", Not Checked: "border-transparent"
+                            -->
+                            <span class="pointer-events-none absolute -inset-px rounded-md" aria-hidden="true"></span>
+                          </label>
+                          <!-- Active: "ring-2 ring-indigo-500" -->
+                          <label class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 cursor-pointer bg-white text-gray-900 shadow-sm">
+                            <input type="radio" name="size-choice" value="XXL" class="sr-only" aria-labelledby="size-choice-6-label">
+                            <span id="size-choice-6-label">XXL</span>
+                            <!--
+                              Active: "border", Not Active: "border-2"
+                              Checked: "border-indigo-500", Not Checked: "border-transparent"
+                            -->
+                            <span class="pointer-events-none absolute -inset-px rounded-md" aria-hidden="true"></span>
+                          </label>
+                          <!-- Active: "ring-2 ring-indigo-500" -->
+                          <label class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 cursor-not-allowed bg-gray-50 text-gray-200">
+                            <input type="radio" name="size-choice" value="XXXL" disabled class="sr-only" aria-labelledby="size-choice-7-label">
+                            <span id="size-choice-7-label">XXXL</span>
+                            <span aria-hidden="true" class="pointer-events-none absolute -inset-px rounded-md border-2 border-gray-200">
+                              <svg class="absolute inset-0 h-full w-full stroke-2 text-gray-200" viewBox="0 0 100 100" preserveAspectRatio="none" stroke="currentColor">
+                                <line x1="0" y1="100" x2="100" y2="0" vector-effect="non-scaling-stroke" />
+                              </svg>
+                            </span>
+                          </label>
+                        </div>
+                      </fieldset>
+                    </div>
+  
+                    <button type="submit" class="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Add to bag</button>
+                  </form>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

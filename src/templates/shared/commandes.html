@@ -1,0 +1,54 @@
+<div class="flex flex-col ">
+    {% for commande in commandes %}
+            <div class=" bg-white bord-r padd border mr-3 mb-6 rounded-lg shadow dark:bg-gray-800 marg-top " >
+                <div class="p-5 mt-2">
+                    <div class="admin-style bord-r p-4 ">
+                        <strong>N Commande:</strong> {{ commande.id }}<br>
+                <div class="flex justify-between marg-top ">
+                    <div>
+                        <strong>Nom :</strong> {{ User.query.get(commande.user_id).username }}<br>
+                        <strong>Date :</strong> {{ commande.date_commande.strftime('%Y-%m-%d') }}<br>
+                    </div>
+                    <div>
+                        <strong>Statut:</strong> {{ commande.statut }}<br>
+                        <strong>Total:</strong> {{ commande.total }} FCFA<br>
+                    </div>
+                </div>
+
+                {% if commande.statut == 'En Cours' %}
+                    <button style="background-color:rgb(147, 51, 51)" class="checkout-btn2 marg-left-16">
+                        <a href="{{ url_for('sup_commande', panier_id=commande.panier.id) }}">Annuler</a>
+                    </button>
+                    <button style="background-color:rgb(60, 129, 31)" class="checkout-btn2 ">
+                        <a href="{{ url_for('val_commande', panier_id=commande.panier.id) }}">Valider</a>
+                    </button>
+                {% endif %}
+                </div>
+                </div>
+
+                <button class="openModalBtn admin-style checkout-btn">Voir plus</button>
+
+                <!-- The modal for this commande -->
+                <div class="modal" style="display: none;">
+                  <!-- Modal content -->
+                  <div class="modal-content2">
+                    <span class="close">&times;</span>
+                    <p class="text-2xl f-italic f-bold text-center marg-top" >Détails Panier</p>
+                    <div class="marg-top marg-left">
+                      {% for item in commande.panier.items %}
+                        <hr class="marg-top">
+                        <div class="marg-left2 ">
+                        <p> ➿ {{ item.livre.title }} </p>
+                        <p> ➿ Prix : {{ item.livre.prix }} </p>
+                        <p> ➿ Quantité: {{ item.nombre }}</p>
+                        </div>
+                        <hr>
+                      {% endfor %}
+                  </div>
+                  </div>
+                </div>
+            </div>
+    {% endfor %}
+</div>
+<script src="{{url_for('static',filename='js/script.js')}}"></script>
+<script src="{{url_for('static',filename='js/modal.js')}}"></script>

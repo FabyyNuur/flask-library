@@ -1,0 +1,147 @@
+{% extends "layouts/base.html" %} {% block title %} {{ super() }} | Bibliothèque
+{% endblock title %} {% block content %}
+<div class="books-container">
+  <div class="page-header">
+    <h1 class="page-title">📚 Ma Bibliothèque Favorite</h1>
+    <p class="page-description">
+      Découvrez votre collection de livres préférés
+    </p>
+  </div>
+
+  {% if livres %}
+  <!-- Filtres pour la bibliothèque -->
+  <div class="bg-white rounded-2xl shadow-md p-4 mb-8">
+    <div class="flex flex-wrap items-center gap-4">
+      <!-- Recherche -->
+      <div class="flex-1 min-w-48">
+        <div class="relative">
+          <input
+            type="text"
+            id="search-library"
+            placeholder="Rechercher dans ma bibliothèque..."
+            class="form-input pl-10"
+            onkeyup="filterLibrary()"
+          />
+          <div class="absolute left-3 top-1/2 transform -translate-y-1/2">
+            <i class="fas fa-search text-gray-400"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tri -->
+      <select id="sort-library" class="form-select" onchange="sortLibrary()">
+        <option value="">Trier par...</option>
+        <option value="title-asc">Titre (A-Z)</option>
+        <option value="title-desc">Titre (Z-A)</option>
+        <option value="author-asc">Auteur (A-Z)</option>
+        <option value="author-desc">Auteur (Z-A)</option>
+        <option value="price-asc">Prix croissant</option>
+        <option value="price-desc">Prix décroissant</option>
+      </select>
+
+      <!-- Reset -->
+      <button onclick="resetLibraryFilters()" class="btn btn-ghost btn-sm">
+        <i class="fas fa-refresh mr-1"></i>
+        Reset
+      </button>
+    </div>
+  </div>
+
+  <div class="books-grid" id="library-grid">
+    {% for livre in livres %} {% include "shared/biblio.html" %} {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📚</div>
+    <h3 class="empty-title">Aucun livre dans votre bibliothèque</h3>
+    <p class="empty-description">
+      Commencez à ajouter des livres à votre collection favorite
+    </p>
+    <a href="{{ url_for('home_client') }}" class="btn btn-primary">
+      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+        ></path>
+      </svg>
+      Découvrir des livres
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  // Fonctions de filtrage pour la bibliothèque
+  function filterLibrary() {
+    const searchValue = document
+      .getElementById("search-library")
+      .value.toLowerCase();
+    const bookCards = document.querySelectorAll("#library-grid .book-card");
+
+    bookCards.forEach((card) => {
+      const title =
+        card.querySelector(".book-title")?.textContent.toLowerCase() || "";
+      const author =
+        card.querySelector(".book-author")?.textContent.toLowerCase() || "";
+
+      const shouldShow =
+        title.includes(searchValue) || author.includes(searchValue);
+      card.style.display = shouldShow ? "flex" : "none";
+    });
+  }
+
+  function sortLibrary() {
+    const sortValue = document.getElementById("sort-library").value;
+    const grid = document.getElementById("library-grid");
+    const cards = Array.from(
+      document.querySelectorAll("#library-grid .book-card")
+    );
+
+    if (!sortValue) return;
+
+    cards.sort((a, b) => {
+      const getTitle = (card) =>
+        card.querySelector(".book-title")?.textContent.toLowerCase() || "";
+      const getAuthor = (card) =>
+        card.querySelector(".book-author")?.textContent.toLowerCase() || "";
+      const getPrice = (card) => {
+        const priceText = card.querySelector(".book-price")?.textContent || "0";
+        return parseFloat(priceText.replace(/[^\d.-]/g, "")) || 0;
+      };
+
+      switch (sortValue) {
+        case "title-asc":
+          return getTitle(a).localeCompare(getTitle(b));
+        case "title-desc":
+          return getTitle(b).localeCompare(getTitle(a));
+        case "author-asc":
+          return getAuthor(a).localeCompare(getAuthor(b));
+        case "author-desc":
+          return getAuthor(b).localeCompare(getAuthor(a));
+        case "price-asc":
+          return getPrice(a) - getPrice(b);
+        case "price-desc":
+          return getPrice(b) - getPrice(a);
+        default:
+          return 0;
+      }
+    });
+
+    // Réorganiser les cartes dans le DOM
+    cards.forEach((card) => grid.appendChild(card));
+  }
+
+  function resetLibraryFilters() {
+    document.getElementById("search-library").value = "";
+    document.getElementById("sort-library").value = "";
+
+    // Réafficher toutes les cartes
+    document.querySelectorAll("#library-grid .book-card").forEach((card) => {
+      card.style.display = "flex";
+    });
+  }
+</script>
+
+{% endblock %}

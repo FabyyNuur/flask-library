@@ -1,0 +1,313 @@
+{% extends "layouts/base.html" %} {% block title %} {{ super() }} | Admin -
+Ajout Livre {% endblock title %} {% block content %}
+<div class="container mx-auto px-6 py-8 max-w-4xl">
+  <!-- Header Section -->
+  <div class="mb-12" style="margin-top: 3rem">
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-primary font-heading mb-4">
+        <i class="fas fa-plus-circle text-secondary mr-3"></i>
+        Ajouter un Nouveau Livre
+      </h1>
+      <p class="text-gray-600 mb-6">
+        Enrichissez votre catalogue avec un nouveau livre
+      </p>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <div class="card">
+    <div class="card-header">
+      <h3
+        class="text-xl font-semibold text-primary flex items-center gap-2 mb-2"
+      >
+        <i class="fas fa-book"></i>
+        Informations du Livre
+      </h3>
+    </div>
+
+    <div class="card-body">
+      <form method="POST" action="/admin/ajout-livre" class="space-y-8">
+        <!-- Section: Informations Générales -->
+        <div class="bg-gray-50 p-8 rounded-xl">
+          <h4
+            class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2"
+          >
+            <i class="fas fa-info-circle text-primary"></i>
+            Informations Générales
+          </h4>
+
+          <div class="grid grid-cols-2 gap-8">
+            <div class="form-group">
+              <label for="title" class="form-label mb-3">
+                <i class="fas fa-heading text-gray-400 mr-2"></i>
+                Titre du Livre
+              </label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                class="form-input"
+                placeholder="Entrez le titre du livre..."
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="auteur" class="form-label mb-3">
+                <i class="fas fa-user-edit text-gray-400 mr-2"></i>
+                Auteur
+              </label>
+              <input
+                type="text"
+                id="auteur"
+                name="auteur"
+                class="form-input"
+                placeholder="Nom de l'auteur..."
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="description" class="form-label">
+              <i class="fas fa-align-left text-gray-400 mr-2"></i>
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              class="form-input min-h-32"
+              placeholder="Décrivez le livre, son intrigue, ses thèmes..."
+              required
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Section: Catégorisation -->
+        <div class="bg-blue-50 p-6 rounded-xl">
+          <h4
+            class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2"
+          >
+            <i class="fas fa-tags text-blue-600"></i>
+            Catégorisation
+          </h4>
+
+          <div class="form-group">
+            <label class="form-label mb-4">
+              <i class="fas fa-folder-open text-gray-400 mr-2"></i>
+              Catégories
+            </label>
+            <div
+              class="overflow-y-scroll h-36 border border-gray-200 rounded-lg p-4 bg-gray-50"
+              style="height: 200px; overflow-y: scroll"
+            >
+              <div class="grid grid-cols-4 gap-3">
+                {% for category in cate %}
+                <label
+                  class="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    name="categories[]"
+                    value="{{ category.id }}"
+                    class="w-3 h-3 text-primary border-gray-300 rounded focus:ring-primary"
+                  />
+                  <span class="text-gray-700 font-medium truncate"
+                    >{{ category.libelle }}</span
+                  >
+                </label>
+                {% endfor %}
+              </div>
+            </div>
+            <p class="text-sm text-gray-600 mt-3">
+              <i class="fas fa-info-circle mr-1"></i>
+              Sélectionnez une ou plusieurs catégories pour ce livre
+            </p>
+          </div>
+        </div>
+
+        <!-- Section: Média et Prix -->
+        <div class="bg-green-50 p-6 rounded-xl">
+          <h4
+            class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2"
+          >
+            <i class="fas fa-image text-green-600"></i>
+            Média et Prix
+          </h4>
+
+          <div class="grid grid-cols-2 gap-6">
+            <div class="form-group">
+              <label for="img_url" class="form-label">
+                <i class="fas fa-link text-gray-400 mr-2"></i>
+                URL de l'Image de Couverture
+              </label>
+              <input
+                type="url"
+                id="img_url"
+                name="img_url"
+                class="form-input"
+                placeholder="https://exemple.com/couverture.jpg"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="prix" class="form-label">
+             
+                Prix (CFA)
+              </label>
+              <input
+                type="number"
+                id="prix"
+                name="prix"
+                class="form-input"
+                placeholder="19.99"
+                step="0.01"
+                min="0"
+                required
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Détails Techniques -->
+        <div class="bg-purple-50 p-6 rounded-xl">
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="form-group">
+              <label for="stock" class="form-label">
+                <i class="fas fa-boxes text-gray-400 mr-2"></i>
+                Stock
+              </label>
+              <input
+                type="number"
+                id="stock"
+                name="stock"
+                class="form-input"
+                placeholder="50"
+                min="0"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="volume" class="form-label">
+                <i class="fas fa-bookmark text-gray-400 mr-2"></i>
+                Volume/Tome
+              </label>
+              <select id="volume" name="volume" class="form-select" required>
+                <option value="">Sélectionner...</option>
+                <option value="1">Tome 1</option>
+                <option value="2">Tome 2</option>
+                <option value="3">Tome 3</option>
+                <option value="4">Tome 4</option>
+                <option value="5">Tome 5</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="pages" class="form-label">
+                <i class="fas fa-file-alt text-gray-400 mr-2"></i>
+                Nombre de Pages
+              </label>
+              <input
+                type="number"
+                id="pages"
+                name="pages"
+                class="form-input"
+                placeholder="320"
+                min="1"
+                required
+              />
+            </div>
+
+                 <div class="form-group">
+              <label for="sortie" class="form-label">
+                <i class="fas fa-calendar text-gray-400 mr-2"></i>
+                Date de Sortie
+              </label>
+              <input
+                type="text"
+                id="sortie"
+                name="sortie"
+                class="form-input"
+                placeholder="15 mars 2024"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+
+            <div class="form-group flex items-center gap-4 pt-6">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="disponible"
+                  name="disponible"
+                  class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
+                  checked
+                />
+                <span class="text-gray-700 font-medium">
+                  <i class="fas fa-check-circle text-green-600 mr-1"></i>
+                  Livre Disponible
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-center pt-6">
+          <button
+            type="submit"
+            class="btn btn-primary btn-lg flex items-center gap-3 px-8"
+          >
+            <i class="fas fa-plus-circle"></i>
+            Ajouter le Livre
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    font-size: 0.875rem;
+  }
+
+  .form-input,
+  .form-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    font-size: 1rem;
+    transition: all var(--transition-normal);
+    background-color: var(--white);
+  }
+
+  .form-input:focus,
+  .form-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(45, 27, 46, 0.1);
+  }
+
+  .form-input::placeholder {
+    color: var(--gray-400);
+  }
+
+  .min-h-32 {
+    min-height: 8rem;
+  }
+</style>
+{% endblock %}

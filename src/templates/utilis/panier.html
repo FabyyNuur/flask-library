@@ -1,0 +1,16 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+   Panier | Details
+{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+    <div class="center mb-6">
+        <h1 class="text-3xl font-bold text-primary mb-2">Mon Panier</h1>
+        <p class="text-gray-600">Gérez vos articles avant de passer commande</p>
+    </div>
+    
+    {% include "shared/pa_nier.html" %}
+</div>
+{% endblock content %}

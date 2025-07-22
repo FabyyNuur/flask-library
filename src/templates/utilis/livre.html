@@ -1,0 +1,247 @@
+{% extends "layouts/base.html" %} {% block title %} {{ super() }} | Détails - {{
+livre.title }} {% endblock %} {% block content %}
+<!-- Vue Produit Modernisée -->
+<div class="container mx-auto px-6 py-8 max-w-6xl">
+  <!-- Retour -->
+  <div style="margin-bottom: 3rem ; margin-top : 3rem">
+    {% if current_user.is_authenticated and current_user.role == 'ADMIN' %}
+    <a
+      href="/admin/bookstore"
+      class="btn btn-outline flex items-center gap-2 w-fit"
+    >
+      <i class="fas fa-arrow-left"></i>
+      Retour au Dashboard
+    </a>
+    {% else %}
+    <a href="/shop" class="btn btn-outline flex items-center gap-2 w-fit">
+      <i class="fas fa-arrow-left"></i>
+      Retour à la boutique
+    </a>
+    {% endif %}
+  </div>
+
+  <div class="grid grid-cols-2 gap-20">
+    <!-- Image du livre -->
+    <div class="space-y-4">
+      <div
+        class="max-w-md mx-auto aspect-w-3 aspect-h-4 bg-gray-100 rounded-2xl overflow-hidden shadow-xl"
+      >
+        <img
+          src="{{ livre.img_url or url_for('static', filename='img/biblio1.jpeg') }}"
+          alt="{{ livre.title }}"
+          class="w-full h-full object-cover"
+        />
+      </div>
+
+      <!-- Badge de disponibilité -->
+      <div class="flex justify-center m-5">
+        {% if livre.disponible %}
+        <span class="badge badge-success flex items-center gap-2">
+          <i class="fas fa-check-circle"></i>
+          Disponible en stock ({{ livre.stock }} exemplaires)
+        </span>
+        {% else %}
+        <span class="badge badge-error flex items-center gap-2">
+          <i class="fas fa-times-circle"></i>
+          Épuisé
+        </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Informations du livre -->
+    <div class="space-y-6">
+      <!-- Titre et Auteur -->
+      <div>
+        <h1 class="text-4xl font-bold text-black font-heading mb-3">
+          {{ livre.title }}
+        </h1>
+        <p class="text-xl text-black flex items-center gap-2">
+          <i class="fas fa-user-edit text-black"></i>
+          par <span class="font-semibold text-black">{{ livre.auteur }}</span>
+        </p>
+      </div>
+
+      <!-- Description -->
+      {% if livre.description %}
+      <div>
+        <h3
+          class="text-lg font-semibold text-black mb-3 flex items-center gap-2"
+        >
+          <i class="fas fa-align-left text-black"></i>
+          Description
+        </h3>
+        <div class="bg-gray-50 p-6 rounded-xl">
+          <p class="text-black leading-relaxed">{{ livre.description }}</p>
+        </div>
+      </div>
+      {% endif %}
+      <!-- Actions -->
+      {% if current_user.is_authenticated and current_user.role != 'ADMIN' %}
+      <div class="space-y-3">
+        {% if livre.disponible %}
+        <a
+          href="{{ url_for('ajoutPanier', livre_id=livre.id) }}"
+          class="w-full btn btn-primary btn-lg flex items-center justify-center gap-3"
+        >
+          <i class="fas fa-cart-plus"></i>
+          Ajouter au Panier
+        </a>
+
+        <a
+          href="{{ url_for('ajoutBiblio', livre_id=livre.id) }}"
+          class="w-full btn btn-outline flex items-center justify-center gap-3"
+        >
+          <i class="fas fa-heart"></i>
+          Ajouter aux Favoris
+        </a>
+        {% else %}
+        <button
+          class="w-full btn btn-error btn-lg cursor-not-allowed opacity-50"
+          disabled
+        >
+          <i class="fas fa-times-circle"></i>
+          Livre Épuisé
+        </button>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div>
+    <!-- Prix et Évaluations -->
+    <div class="flex items-center justify-between p-6 bg-gray-100 rounded-2xl">
+      <div>
+        <p class="text-3xl font-bold text-black">
+          {{ "%.2f"|format(livre.prix) }}CFA
+        </p>
+        <p class="text-black text-sm">Prix TTC</p>
+      </div>
+      {% if livre.nbr_etoiles %}
+      <div class="text-right">
+        <div class="flex items-center gap-1 mb-1">
+          {% for i in range(5) %} {% if i < livre.nbr_etoiles %}
+          <i class="fas fa-star text-yellow-400 text-lg"></i>
+          {% else %}
+          <i class="far fa-star text-yellow-400 text-lg"></i>
+          {% endif %} {% endfor %}
+        </div>
+        <p class="text-black text-sm">
+          {{ livre.nbre_lecteurs or 0 }} lecteurs
+        </p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Informations détaillées -->
+    <div class="grid grid-cols-4 gap-4">
+      {% if livre.volume %}
+      <div class="bg-gray-50 p-4 rounded-xl">
+        <p class="text-sm text-black mb-1">Volume</p>
+        <p class="font-semibold text-black">Tome {{ livre.volume }}</p>
+      </div>
+      {% endif %} {% if livre.pages %}
+      <div class="bg-gray-50 p-4 rounded-xl">
+        <p class="text-sm text-black mb-1">Pages</p>
+        <p class="font-semibold text-black">{{ livre.pages }} pages</p>
+      </div>
+      {% endif %} {% if livre.sortie %}
+      <div class="bg-gray-50 p-4 rounded-xl">
+        <p class="text-sm text-black mb-1">Sortie</p>
+        <p class="font-semibold text-black">{{ livre.sortie }}</p>
+      </div>
+      {% endif %} {% if livre.classement %}
+      <div class="bg-gray-50 p-4 rounded-xl">
+        <p class="text-sm text-black mb-1">Classement</p>
+        <p class="font-semibold text-black">#{{ livre.classement }}</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Catégories -->
+    {% if livre.categories %}
+    <div>
+      <h3 class="text-lg font-semibold text-black mb-3 flex items-center gap-2">
+        <i class="fas fa-tags text-black"></i>
+        Catégories
+      </h3>
+      <div class="flex flex-wrap gap-2">
+        {% for categorie in livre.categories %}
+        <span class="badge badge-info">{{ categorie.libelle }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  <!-- Livres Similaires -->
+  {% if livres_similaires %}
+  <div style="margin-top: 4rem; margin-bottom: 4rem">
+    <h2 class="text-3xl font-bold text-black font-heading mb-8 text-center">
+      <i class="fas fa-book-open text-black m-8"></i>
+      {% if current_user.role != 'ADMIN' %} Vous pourriez aussi aimer {% else %}
+      Livres Similaires {% endif %}
+    </h2>
+
+    <div class="grid grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+      {% for livre_sim in livres_similaires[:4] %}
+      <div class="book-card">
+        <img
+          src="{{ livre_sim.img_url or url_for('static', filename='img/biblio1.jpeg') }}"
+          alt="{{ livre_sim.title }}"
+          class="book-image"
+        />
+
+        <div class="book-content">
+          <h3 class="book-title">{{ livre_sim.title }}</h3>
+          <p class="book-author">{{ livre_sim.auteur }}</p>
+          <p class="book-price">{{ "%.2f"|format(livre_sim.prix) }}CFA</p>
+
+          <div class="book-actions">
+            <a
+              href="{{ url_for('detail_livre_c', id_livre=livre_sim.id) }}"
+              class="book-btn book-btn-secondary"
+            >
+              <i class="fas fa-eye"></i>
+              Voir
+            </a>
+            {% if current_user.is_authenticated and current_user.role != 'ADMIN'
+            %}
+            <a
+              href="{{ url_for('ajoutPanier', livre_id=livre_sim.id) }}"
+              class="book-btn book-btn-primary"
+            >
+              <i class="fas fa-cart-plus"></i>
+              Panier
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+  .aspect-w-3 {
+    position: relative;
+    width: 100%;
+  }
+
+  .aspect-w-3::before {
+    content: "";
+    display: block;
+    padding-bottom: 133.333333%; /* 4:3 aspect ratio */
+  }
+
+  .aspect-h-4 > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+{% endblock content %}

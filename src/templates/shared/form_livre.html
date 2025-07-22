@@ -1,0 +1,107 @@
+
+<div class="shopping-cart ">
+    <form method="POST" action="/admin/ajout-livre">
+
+        <div class="mb-5">
+            <label for="title" class="block mb-2  font-medium text-gray-900 dark:text-white">Titre</label>
+            <input type="text" id="title" name="title" class="bg-gray-50 border border-gray-300 text-gray-900  rounded-lg   block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark: dark:" required />
+            <br>
+        </div>
+        <div class="mb-5">
+            <label for="auteur" class="block mb-2  font-medium text-gray-900 dark:text-white">Auteur</label>
+            <input type="text" id="auteur" name="auteur" class="bg-gray-50 border border-gray-300 text-gray-900  rounded-lg   block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark: dark:" required />
+            <br>
+        </div>
+        <div class="mb-5">
+            <label for="description" class="block mb-2  font-medium text-gray-900 dark:text-white">Description</label>
+            <textarea type="text" id="description" name="description" class="bg-gray-50 border border-gray-300 text-gray-900  rounded-lg   block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark: dark:" required>
+                
+            </textarea> 
+            <br>
+        </div>
+        
+        <div>
+            <label for="categories" class="block mb-2  font-medium text-gray-900 dark:text-white">Catégories </label>
+            <select id="categories" name="categories[]" multiple class="chosen-select bg-gray-50 border border-gray-300 text-gray-900  rounded-lg   block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark: dark:" required>
+                {% for category in cate %}
+                    <option value="{{ category.id }}">{{ category.libelle }}</option>
+                {% endfor %}
+            </select><br><br>
+        </div>
+
+        <div class="mb-5">
+            <label for="img_url" class="block mb-2  font-medium text-gray-900 dark:text-white">URL de l'image</label>
+            <input type="text" id="img_url" name="img_url" class="bg-gray-50 border border-gray-300 text-gray-900  rounded-lg   block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark: dark:" required />
+            <br>
+        </div>
+
+        <div class="mb-5">
+            <label for="prix" class="block mb-2  font-medium text-gray-900 dark:text-white">Prix</label>
+            <input type="number" id="prix" name="prix" class="bg-gray-50 border border-gray-300 text-gray-900  rounded-lg   block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark: dark:" required />
+            <br>
+        </div>
+
+        <div class="mb-5">
+            <label for="stock" class="block mb-2  font-medium text-gray-900 dark:text-white">Stock</label>
+            <input type="number" id="stock" name="stock" class="bg-gray-50 border border-gray-300 text-gray-900  rounded-lg   block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark: dark:" required />
+            <br>
+        </div>
+
+        <div class="mb-5">
+            <label for="volume" class="block mb-2  font-medium text-gray-900 dark:text-white">Volume/Tome</label>
+            <select id="volume"  name="volume" class="bg-gray-50 border border-gray-300 text-gray-900  rounded-lg   block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark: dark:" required>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+            </select>
+            <br>
+        </div>
+
+        <div class="mb-5" >
+            <label for="disponible">Disponible </label>
+            <input type="checkbox" id="disponible" name="disponible" class="marg-left" checked><br><br>
+        </div>
+
+        <div class="mb-5">
+            <label for="nbre_lecteurs" class="block mb-2  font-medium text-gray-900 dark:text-white">Nombre de lecteurs</label>
+            <input type="number" id="nbre_lecteurs" name="nbre_lecteurs" class="bg-gray-50 border border-gray-300 text-gray-900  rounded-lg   block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark: dark:" required />
+            <br>
+        </div>
+        <div class="mb-5">
+            <label for="sortie" class="block mb-2  font-medium text-gray-900 dark:text-white">Date de sortie</label>
+            <input type="text" id="sortie" name="sortie" class="bg-gray-50 border border-gray-300 text-gray-900  rounded-lg   block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark: dark:" required />
+            <br>
+        </div>
+        
+        <div class="mb-5">
+            <label for="nbr_etoiles" class="block mb-2  font-medium text-gray-900 dark:text-white">Nombre d'étoiles</label>
+            <input type="number" id="nbr_etoiles" name="nbr_etoiles" class="bg-gray-50 border border-gray-300 text-gray-900  rounded-lg   block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark: dark:" required />
+            <br>
+        </div>
+
+        <div class="mb-5">
+            <label for="classement" class="block mb-2  font-medium text-gray-900 dark:text-white">Classement</label>
+            <input type="number" id="classement" name="classement" class="bg-gray-50 border border-gray-300 text-gray-900  rounded-lg   block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark: dark:" required />
+            <br>
+        </div>
+
+        <div class="mb-5">
+            <label for="pages" class="block mb-2  font-medium text-gray-900 dark:text-white">Nombre de pages</label>
+            <input type="number" id="pages" name="pages" class="bg-gray-50 border border-gray-300 text-gray-900  rounded-lg   block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark: dark:" required />
+            <br>
+        </div>
+        <button type="submit" class="ms-2 padd font-medium marg-left-12 text-white  rounded-lg border focus:outline-none back-marron">
+            Ajouter
+        </button>
+
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chosen-js/chosen.jquery.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('.chosen-select').chosen();
+    });
+</script>

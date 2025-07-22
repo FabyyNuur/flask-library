@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Nuur-Library{% endblock title %}</title>
+
+    <!-- Stylesheets -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style_new.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/utilities.css') }}"
+    />
+    <!-- Alignment fixes doit être en dernier pour avoir la priorité -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/alignment-fixes.css') }}"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Meta tags for SEO -->
+    <meta
+      name="description"
+      content="{% block description %}Nuur-Library - Votre bibliothèque personnelle en ligne{% endblock description %}"
+    />
+    <meta
+      name="keywords"
+      content="{% block keywords %}livres, bibliothèque, lecture, e-commerce{% endblock keywords %}"
+    />
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='img/logo-nuur.png') }}"
+      type="image/png"
+    />
+  </head>
+  <body
+    class="{% if current_user.is_authenticated and current_user.role == 'ADMIN' %}bg-gray-50{% else %}bg-gray-50{% endif %}"
+  >
+    <div class="app-container">
+      <!-- Navigation -->
+      {% include 'shared/nav_bar.html' %}
+
+      <!-- Main Content -->
+      <main>
+        {% block content %}
+        <!-- Content will be injected here -->
+        {% endblock content %}
+      </main>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="footer-content">
+          <div class="footer-main">
+            <div class="footer-brand">
+              <img
+                src="{{ url_for('static', filename='img/logo-nuur.png') }}"
+                alt="Nuur Library"
+                class="navbar-logo"
+              />
+              <span>Nuur-Library</span>
+            </div>
+
+            <div class="footer-copyright">
+              © 2024 Nuur-Library. Tous droits réservés.
+            </div>
+
+            <div class="footer-social">
+              <a href="#" aria-label="Facebook">
+                <i class="fab fa-facebook"></i>
+              </a>
+              <a href="#" aria-label="Twitter">
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a href="#" aria-label="Instagram">
+                <i class="fab fa-instagram"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/filters.js') }}"></script>
+    <script>
+      // Gestion des dropdowns
+      document.addEventListener("DOMContentLoaded", function () {
+        // Auto-fermer les dropdowns quand on clique ailleurs
+        document.addEventListener("click", function (event) {
+          const dropdowns = document.querySelectorAll(".dropdown-menu");
+          dropdowns.forEach((dropdown) => {
+            if (!dropdown.closest(".dropdown").contains(event.target)) {
+              dropdown.style.opacity = "0";
+              dropdown.style.visibility = "hidden";
+              dropdown.style.transform = "translateY(-10px)";
+            }
+          });
+        });
+      });
+
+      // Animation au scroll
+      function animateOnScroll() {
+        const elements = document.querySelectorAll(".card, .book-card");
+        elements.forEach((element) => {
+          const elementTop = element.getBoundingClientRect().top;
+          const elementVisible = 150;
+
+          if (elementTop < window.innerHeight - elementVisible) {
+            element.style.opacity = "1";
+            element.style.transform = "translateY(0)";
+          }
+        });
+      }
+
+      // Initialiser les animations
+      window.addEventListener("scroll", animateOnScroll);
+      document.addEventListener("DOMContentLoaded", animateOnScroll);
+    </script>
+
+    {% block scripts %}
+    <!-- Additional scripts can be added here -->
+    {% endblock scripts %}
+  </body>
+</html>

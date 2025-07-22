@@ -1,0 +1,121 @@
+<div class="book-card">
+  <!-- Image du livre -->
+  <div class="relative overflow-hidden">
+    <img
+      src="{{ livre['img_url'] or url_for('static', filename='img/biblio1.jpeg') }}"
+      alt="{{ livre['title'] }}"
+      class="book-image"
+      loading="lazy"
+    />
+    <!-- Badge de disponibilité -->
+    {% if livre.disponible %}
+    <div class="badge available">
+      <i class="fas fa-check-circle"></i>
+      Disponible
+    </div>
+    {% else %}
+    <div class="badge unavailable">
+      <i class="fas fa-times-circle"></i>
+      Épuisé
+    </div>
+    {% endif %}
+
+    <!-- Actions rapides overlay -->
+    <div class="book-actions-overlay">
+      <a
+        href="{{ url_for('detail_livre_c', id_livre=livre['id']) }}"
+        class="btn btn-primary btn-sm"
+      >
+        <i class="fas fa-eye"></i>
+        Voir
+      </a>
+      {% if current_user.is_authenticated and current_user.role != 'ADMIN' %}
+      <a
+        href="{{ url_for('ajoutPanier', livre_id=livre['id']) }}"
+        class="btn btn-secondary btn-sm"
+      >
+        <i class="fas fa-cart-plus"></i>
+        Panier
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Contenu de la carte -->
+  <div class="book-content">
+    <!-- Titre et auteur -->
+    <h3 class="book-title">
+      <a
+        href="{{ url_for('detail_livre_c', id_livre=livre['id']) }}"
+        class="hover:text-secondary transition-colors"
+      >
+        {{ livre['title'] }}
+      </a>
+    </h3>
+    <p class="book-author">
+      <i class="fas fa-user text-gray-400"></i>
+      {{ livre['auteur'] }}
+    </p>
+
+    <!-- Description courte -->
+    {% if livre.description %}
+    <p class="book-description">
+      {{ livre.description[:100] }}{% if livre.description|length > 100 %}...{%
+      endif %}
+    </p>
+    {% endif %}
+
+    <!-- Catégories -->
+    {% if livre.categories %}
+    <div class="flex flex-wrap gap-1 mb-3">
+      {% for categorie in livre.categories[:3] %}
+      <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+        {{ categorie.libelle }}
+      </span>
+      {% endfor %} {% if livre.categories|length > 3 %}
+      <span class="text-xs text-gray-500"
+        >+{{ livre.categories|length - 3 }}</span
+      >
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Prix et étoiles -->
+    <div class="space-between mb-4">
+      {% if livre.prix %}
+      <div class="book-price">{{ "%.2f"|format(livre.prix) }} CFA</div>
+      {% endif %} {% if livre.nbr_etoiles %}
+      <div class="flex items-center gap-1">
+        {% for i in range(5) %} {% if i < livre.nbr_etoiles %}
+        <i class="fas fa-star text-warning text-sm"></i>
+        {% else %}
+        <i class="far fa-star text-gray-300 text-sm"></i>
+        {% endif %} {% endfor %}
+        <span class="text-sm text-gray-500 ml-1"
+          >({{ livre.nbre_lecteurs or 0 }})</span
+        >
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Actions -->
+    <div class="book-actions">
+      <a
+        href="{{ url_for('detail_livre_c', id_livre=livre['id']) }}"
+        class="book-btn book-btn-secondary"
+      >
+        <i class="fas fa-info-circle"></i>
+        Détails
+      </a>
+      {% if current_user.is_authenticated and current_user.role != 'ADMIN' %}
+      <a
+        href="{{ url_for('ajoutPanier', livre_id=livre['id']) }}"
+        class="book-btn book-btn-primary"
+      >
+        <i class="fas fa-cart-plus"></i>
+        Panier
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>

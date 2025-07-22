@@ -1,0 +1,417 @@
+{% extends "layouts/base.html" %} {% block title %}Commandes - Administration -
+{{ super() }}{% endblock title %} {% block content %}
+<div class="container mx-auto px-6 py-8 admin-commandes">
+  <!-- Header Section -->
+  <div class="mb-12 mt-8" style="margin-top: 3rem">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-4xl font-bold text-primary font-heading mb-4">
+          <i class="fas fa-clipboard-list text-secondary mr-3"></i>
+          Gestion des Commandes
+        </h1>
+        <p class="text-gray-600 mb-6">
+          Gérez et suivez toutes les commandes clients
+        </p>
+      </div>
+      <div class="flex items-center gap-6">
+        <div class="card px-6 py-4">
+          <div class="text-center">
+            <div class="text-2xl font-bold text-primary mb-2">
+              {{ commandes|length }}
+            </div>
+            <div class="text-sm text-gray-600">Commandes totales</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres et Recherche pour Commandes -->
+  <div class="bg-white rounded-2xl shadow-lg p-6 mb-8" style="margin-bottom: 3rem;">
+    <div class="flex flex-wrap items-center gap-4">
+      <!-- Recherche par client -->
+      <div class="flex-1 min-w-64">
+        <div class="relative">
+          <input
+            type="text"
+            id="search-orders"
+            placeholder="Rechercher par client, numéro commande..."
+            class="form-input pl-10"
+            onkeyup="filterOrders()"
+          />
+        </div>
+      </div>
+
+      <!-- Filtre par statut -->
+      <select id="filter-status" class="form-select" onchange="filterOrders()">
+        <option value="">Tous les statuts</option>
+        <option value="En Cours">En Cours</option>
+        <option value="Validée">Validée</option>
+        <option value="Annulée">Annulée</option>
+      </select>
+
+      <!-- Filtre par montant -->
+      <select id="filter-amount" class="form-select" onchange="filterOrders()">
+        <option value="">Tous les montants</option>
+        <option value="low">< 5000 FCFA</option>
+        <option value="medium">5000 - 20000 FCFA</option>
+        <option value="high">> 20000 FCFA</option>
+      </select>
+
+      <!-- Tri -->
+      <select id="sort-orders" class="form-select" onchange="sortOrders()">
+        <option value="">Trier par...</option>
+        <option value="date-desc">Date (Plus récent)</option>
+        <option value="date-asc">Date (Plus ancien)</option>
+        <option value="amount-desc">Montant décroissant</option>
+        <option value="amount-asc">Montant croissant</option>
+        <option value="client-asc">Client (A-Z)</option>
+        <option value="client-desc">Client (Z-A)</option>
+      </select>
+
+      <!-- Bouton reset -->
+      <button onclick="resetOrderFilters()" class="btn btn-ghost">
+        <i class="fas fa-refresh mr-2"></i>
+        Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- Commands Grid -->
+  {% if commandes %}
+  <div
+    class="grid gap-8"
+    style="
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2rem;
+    "
+    id="orders-grid"
+  >
+    {% for commande in commandes %}
+    <div
+      class="card hover:shadow-xl transition-all duration-300 hover:-translate-y-1 mb-6 order-card-filter"
+      data-order-id="{{ commande.id }}"
+      data-client="{{ User.query.get(commande.user_id).username.lower() }}"
+      data-status="{{ commande.statut }}"
+      data-total="{{ commande.total }}"
+      data-date="{{ commande.date_commande.strftime('%Y-%m-%d') }}"
+    >
+      <div class="card-header">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-12 h-12 bg-primary rounded-full flex items-center justify-center"
+            >
+              <i class="fas fa-receipt text-white text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-lg text-primary">
+                Commande #{{ commande.id }}
+              </h3>
+              <p class="text-gray-600 text-sm">
+                {{ User.query.get(commande.user_id).username }}
+              </p>
+            </div>
+          </div>
+          {% if commande.statut == 'En Cours' %}
+          <span class="badge badge-warning">
+            <i class="fas fa-clock"></i>
+            En Cours
+          </span>
+          {% elif commande.statut == 'Validée' %}
+          <span class="badge badge-success">
+            <i class="fas fa-check"></i>
+            Validée
+          </span>
+          {% else %}
+          <span class="badge badge-error">
+            <i class="fas fa-times"></i>
+            Annulée
+          </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <div class="text-sm text-gray-500 mb-1">Date de commande</div>
+            <div class="font-semibold text-gray-800">
+              <i class="fas fa-calendar-alt text-secondary mr-2"></i>
+              {{ commande.date_commande.strftime('%d/%m/%Y') }}
+            </div>
+          </div>
+          <div>
+            <div class="text-sm text-gray-500 mb-1">Montant total</div>
+            <div class="font-bold text-xl text-secondary">
+              {{ "%.0f"|format(commande.total) }} FCFA
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions pour les commandes en cours -->
+        {% if commande.statut == 'En Cours' %}
+        <div class="flex gap-3 mb-4">
+          <a
+            href="{{ url_for('val_commande', panier_id=commande.panier.id) }}"
+            class="btn btn-success btn-sm flex-1"
+          >
+            <i class="fas fa-check"></i>
+            Valider
+          </a>
+          <a
+            href="{{ url_for('sup_commande', panier_id=commande.panier.id) }}"
+            class="btn btn-error btn-sm flex-1"
+          >
+            <i class="fas fa-times"></i>
+            Annuler
+          </a>
+        </div>
+        {% endif %}
+
+        <!-- Bouton pour voir les détails -->
+        <button
+          class="btn btn-outline btn-full openModalBtn"
+          data-commande-id="{{ commande.id }}"
+        >
+          <i class="fas fa-eye"></i>
+          Voir les détails
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal pour les détails -->
+    <div class="modal" id="modal-{{ commande.id }}" style="display: none">
+      <div class="modal-overlay"></div>
+      <div class="modal-container">
+        <div class="modal-header">
+          <h3 class="modal-title">
+            <i class="fas fa-shopping-bag text-primary mr-2"></i>
+            Détails de la commande #{{ commande.id }}
+          </h3>
+          <button class="modal-close">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          {% if commande.panier and commande.panier.items %}
+          <div class="space-y-4">
+            {% for item in commande.panier.items %}
+            <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <div
+                class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center"
+              >
+                <i class="fas fa-book text-gray-500"></i>
+              </div>
+              <div class="flex-1">
+                <h4 class="font-semibold text-gray-800">
+                  {{ item.livre.title }}
+                </h4>
+                <p class="text-gray-600 text-sm">{{ item.livre.auteur }}</p>
+              </div>
+              <div class="text-right">
+                <div class="font-semibold text-secondary">
+                  {{ "%.0f"|format(item.livre.prix) }} FCFA
+                </div>
+                <div class="text-sm text-gray-600">
+                  Quantité: {{ item.nombre }}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-8">
+            <i class="fas fa-inbox text-4xl text-gray-300 mb-4"></i>
+            <p class="text-gray-500">Aucun article dans cette commande</p>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="modal-footer">
+          <div class="flex justify-between items-center">
+            <div class="text-lg font-semibold text-gray-700">
+              Total:
+              <span class="text-secondary"
+                >{{ "%.0f"|format(commande.total) }} FCFA</span
+              >
+            </div>
+            <button class="btn btn-primary modal-close">Fermer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <!-- Empty State -->
+  <div class="text-center py-16">
+    <div class="mb-6">
+      <i class="fas fa-clipboard-list text-6xl text-gray-300"></i>
+    </div>
+    <h3 class="text-2xl font-semibold text-gray-600 mb-2">Aucune commande</h3>
+    <p class="text-gray-500">Les commandes clients apparaîtront ici</p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Gestion des modales
+    const modalBtns = document.querySelectorAll(".openModalBtn");
+    const modals = document.querySelectorAll(".modal");
+    const closeBtns = document.querySelectorAll(".modal-close");
+    const overlays = document.querySelectorAll(".modal-overlay");
+
+    modalBtns.forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const commandeId = this.getAttribute("data-commande-id");
+        const modal = document.getElementById(`modal-${commandeId}`);
+        if (modal) {
+          modal.style.display = "flex";
+          document.body.style.overflow = "hidden";
+        }
+      });
+    });
+
+    closeBtns.forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const modal = this.closest(".modal");
+        modal.style.display = "none";
+        document.body.style.overflow = "auto";
+      });
+    });
+
+    overlays.forEach((overlay) => {
+      overlay.addEventListener("click", function () {
+        const modal = this.closest(".modal");
+        modal.style.display = "none";
+        document.body.style.overflow = "auto";
+      });
+    });
+
+    // Fonctions de filtrage pour les commandes
+    window.filterOrders = function () {
+      const searchValue = document
+        .getElementById("search-orders")
+        .value.toLowerCase();
+      const statusFilter = document.getElementById("filter-status").value;
+      const amountFilter = document.getElementById("filter-amount").value;
+
+      const orderCards = document.querySelectorAll(".order-card-filter");
+
+      orderCards.forEach((card) => {
+        let showCard = true;
+
+        // Filtre par recherche (client et numéro commande)
+        if (searchValue) {
+          const client = card.getAttribute("data-client");
+          const orderId = card.getAttribute("data-order-id");
+          if (!client.includes(searchValue) && !orderId.includes(searchValue)) {
+            showCard = false;
+          }
+        }
+
+        // Filtre par statut
+        if (statusFilter && showCard) {
+          const status = card.getAttribute("data-status");
+          if (status !== statusFilter) {
+            showCard = false;
+          }
+        }
+
+        // Filtre par montant
+        if (amountFilter && showCard) {
+          const total = parseFloat(card.getAttribute("data-total"));
+          if (amountFilter === "low" && total >= 5000) {
+            showCard = false;
+          } else if (
+            amountFilter === "medium" &&
+            (total < 5000 || total > 20000)
+          ) {
+            showCard = false;
+          } else if (amountFilter === "high" && total <= 20000) {
+            showCard = false;
+          }
+        }
+
+        // Afficher ou cacher la carte
+        card.style.display = showCard ? "block" : "none";
+      });
+
+      updateOrderResultsCount();
+    };
+
+    window.sortOrders = function () {
+      const sortValue = document.getElementById("sort-orders").value;
+      const grid = document.getElementById("orders-grid");
+      const cards = Array.from(document.querySelectorAll(".order-card-filter"));
+
+      if (!sortValue) return;
+
+      cards.sort((a, b) => {
+        switch (sortValue) {
+          case "date-desc":
+            return (
+              new Date(b.getAttribute("data-date")) -
+              new Date(a.getAttribute("data-date"))
+            );
+          case "date-asc":
+            return (
+              new Date(a.getAttribute("data-date")) -
+              new Date(b.getAttribute("data-date"))
+            );
+          case "amount-desc":
+            return (
+              parseFloat(b.getAttribute("data-total")) -
+              parseFloat(a.getAttribute("data-total"))
+            );
+          case "amount-asc":
+            return (
+              parseFloat(a.getAttribute("data-total")) -
+              parseFloat(b.getAttribute("data-total"))
+            );
+          case "client-asc":
+            return a
+              .getAttribute("data-client")
+              .localeCompare(b.getAttribute("data-client"));
+          case "client-desc":
+            return b
+              .getAttribute("data-client")
+              .localeCompare(a.getAttribute("data-client"));
+          default:
+            return 0;
+        }
+      });
+
+      // Réorganiser les cartes dans le DOM
+      cards.forEach((card) => grid.appendChild(card));
+    };
+
+    window.resetOrderFilters = function () {
+      document.getElementById("search-orders").value = "";
+      document.getElementById("filter-status").value = "";
+      document.getElementById("filter-amount").value = "";
+      document.getElementById("sort-orders").value = "";
+
+      // Réafficher toutes les cartes
+      document.querySelectorAll(".order-card-filter").forEach((card) => {
+        card.style.display = "block";
+      });
+
+      updateOrderResultsCount();
+    };
+
+    function updateOrderResultsCount() {
+      const visibleCards = document.querySelectorAll(
+        '.order-card-filter[style*="block"], .order-card-filter:not([style*="none"])'
+      ).length;
+      const totalCards = document.querySelectorAll(".order-card-filter").length;
+
+      console.log(`${visibleCards} commandes affichées sur ${totalCards}`);
+    }
+  });
+</script>
+{% endblock %}

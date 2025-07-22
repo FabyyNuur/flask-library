@@ -1,0 +1,78 @@
+<div class="flex flex-col ">
+    {% for user in users %}
+            <div class=" bg-white bord-r padd border mr-3 mb-6 rounded-lg shadow dark:bg-gray-800 marg-top " >
+                <div class="p-5 mt-2">
+                    <div class="admin-style bord-r p-4 ">
+                        <strong>ID :</strong> {{ user.id }}<br>
+                <div class="flex justify-between marg-top ">
+                    <div>
+                        <strong>Nom : </strong> {{ user.username }}<br>
+                        <strong>Statut : </strong> {{ user.statut }}<br>
+                    </div>
+                    <div>
+                        <strong>Nombre Commandes :</strong> {{user.nombre_commandes }}<br>
+                        <strong>Panier en Cours :</strong> {{ user.panier.total | default(0) }}<br>
+                   
+                    </div>
+                </div>
+                </div>
+                </div>
+
+                <button class="openModalBtn admin-style coul-anti checkout-btn2 marg-left-12">COMMANDES</button>
+                <button class="openModalBtn2 admin-style coul-anti checkout-btn2">PANIER</button>
+                <button class="coul-anti checkout-btn2 {% if user.statut == 'ACTIF' %}c-red{% else %}c-green{% endif %}">
+                    {% if user.statut != "ACTIF" %}
+                        <a href="{{ url_for('activation', user_id=user.id) }}">ACTIVER</a>
+                    {% else %}
+                        <a href="{{ url_for('desactivation', user_id=user.id) }}">DESACTIVER</a>
+                    {% endif %}
+                </button>
+
+                <!-- The modal for this user -->
+                <div class="modal" style="display: none;">
+                  <!-- Modal content -->
+                  <div class="modal-content2">
+                    <span class="close">&times;</span>
+                    <p class="text-2xl f-italic f-bold text-center marg-top coul-marron" >LISTE COMMANDES</p>
+                    <div class="marg-top marg-left">
+                        {% for item in user.commandes %}
+                          <hr class="marg-top">
+                          <div class="marg-left2 ">
+                         <p> ➿ Ref Panier : {{ item.panier.id }} </p>
+                          <p> ➿ Date : {{ item.date_commande }} </p>
+                          <p> ➿ Total : {{ item.total }} </p>
+                          <p> ➿ Statut : {{ item.statut }}</p>
+                          </div>
+                          <hr>
+                        {% endfor %}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="modal2" style="display: none;">
+                    <!-- Modal content -->
+                    <div class="modal-content3">
+                      <span class="close2">&times;</span>
+                      <p class="text-2xl f-italic f-bold text-center marg-top coul-marron" >PANIER</p>
+                      <div class="marg-top marg-left">
+                        {% for item in user.panier.items %}
+                          <hr class="marg-top">
+                          <div class="marg-left2 ">
+                              <p> ➿ Ref Panier : {{ user.panier.id}} </p>
+                          <p> ➿ {{ item.livre.title }} </p>
+                          <p> ➿ Prix : {{ item.livre.prix }} </p>
+                          <p> ➿ Quantité: {{ item.nombre }}</p>
+                          </div>
+                          <hr>
+                        {% endfor %}
+                    </div>
+                    </div>
+                  </div>
+
+
+
+            </div>
+    {% endfor %}
+</div>
+<script src="{{url_for('static',filename='js/script.js')}}"></script>
+<script src="{{url_for('static',filename='js/modal.js')}}"></script>

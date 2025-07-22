@@ -1,0 +1,530 @@
+{% extends "layouts/base.html" %} {% block title %} {{ super() }} | Admin -
+Clients {% endblock title %} {% block content %}
+<div class="container mx-auto px-6 py-8 admin-clients">
+  <!-- Header Section -->
+  <div class="mb-12" style="margin-top: 3rem">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-4xl font-bold text-primary font-heading mb-4">
+          <i class="fas fa-users text-secondary mr-3"></i>
+          Gestion des Clients
+        </h1>
+        <p class="text-gray-600 mb-6">
+          Gérez et surveillez tous les clients de votre plateforme
+        </p>
+      </div>
+      <div class="flex items-center gap-6">
+        <div class="card px-6 py-4">
+          <div class="text-center">
+            <div class="text-2xl font-bold text-primary mb-2">
+              {{ users|length }}
+            </div>
+            <div class="text-sm text-gray-600">Clients totaux</div>
+          </div>
+        </div>
+        <div class="card px-6 py-4">
+          <div class="text-center">
+            <div class="text-2xl font-bold text-success mb-2">
+              {{ users|selectattr('statut', 'equalto', 'ACTIF')|list|length }}
+            </div>
+            <div class="text-sm text-gray-600">Actifs</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres et Recherche pour Clients -->
+  <div
+    class="bg-white rounded-2xl shadow-lg p-6 mb-8"
+    style="margin-bottom: 3rem"
+  >
+    <div class="flex flex-wrap items-center gap-4">
+      <!-- Recherche par nom/email -->
+      <div class="flex-1 min-w-64">
+        <div class="relative">
+          <input
+            type="text"
+            id="search-clients"
+            placeholder="Rechercher par nom, prénom, email..."
+            class="form-input pl-10"
+            onkeyup="filterClients()"
+          />
+        </div>
+      </div>
+
+      <!-- Filtre par statut -->
+      <select
+        id="filter-client-status"
+        class="form-select"
+        onchange="filterClients()"
+      >
+        <option value="">Tous les statuts</option>
+        <option value="ACTIF">Actif</option>
+        <option value="INACTIF">Inactif</option>
+      </select>
+
+      <!-- Filtre par nombre de commandes -->
+      <select
+        id="filter-orders-count"
+        class="form-select"
+        onchange="filterClients()"
+      >
+        <option value="">Toutes les commandes</option>
+        <option value="no-orders">Aucune commande</option>
+        <option value="low">1-5 commandes</option>
+        <option value="medium">6-15 commandes</option>
+        <option value="high">> 15 commandes</option>
+      </select>
+
+      <!-- Tri -->
+      <select id="sort-clients" class="form-select" onchange="sortClients()">
+        <option value="">Trier par...</option>
+        <option value="name-asc">Nom (A-Z)</option>
+        <option value="name-desc">Nom (Z-A)</option>
+        <option value="orders-desc">Plus de commandes</option>
+        <option value="orders-asc">Moins de commandes</option>
+        <option value="status-active">Actifs d'abord</option>
+        <option value="status-inactive">Inactifs d'abord</option>
+      </select>
+
+      <!-- Bouton reset -->
+      <button onclick="resetClientFilters()" class="btn btn-ghost">
+        <i class="fas fa-refresh mr-2"></i>
+        Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- Clients Grid -->
+  <div
+    class="grid gap-8"
+    style="
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2rem;
+    "
+    id="clients-grid"
+  >
+    {% for user in users %}
+    <div
+      class="card hover:shadow-xl transition-all duration-300 hover:-translate-y-2 mb-6 client-card-filter"
+      data-client-name="{{ user.username.lower() }}"
+      data-client-email="{{ user.username.lower() }}"
+      data-client-status="{{ user.statut }}"
+      data-orders-count="{{ user.commandes|length }}"
+    >
+      <div class="card-header">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div>
+              <h3 class="font-bold text-lg text-primary">
+                {{ user.username }}
+              </h3>
+              <p class="text-gray-600 text-sm">ID: {{ user.id }}</p>
+            </div>
+          </div>
+          {% if user.statut == 'ACTIF' %}
+          <span class="badge badge-success">
+            <i class="fas fa-check-circle"></i>
+            Actif
+          </span>
+          {% else %}
+          <span class="badge badge-error">
+            <i class="fas fa-times-circle"></i>
+            Inactif
+          </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card-body">
+        <!-- Stats Client -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl">
+            <div class="text-center">
+              <div class="text-xl font-bold text-blue-600">
+                {{ user.commandes|length }}
+              </div>
+              <div class="text-sm text-blue-500">Commandes</div>
+            </div>
+          </div>
+          <div
+            class="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-xl"
+          >
+            <div class="text-center">
+              <div class="text-xl font-bold text-orange-600">
+                {% set panier_total = 0 %} {% for panier in user.paniers %} {%
+                if not panier.valide %} {% set panier_total = panier.total %} {%
+                endif %} {% endfor %} {{ (panier_total | round(2)) }}CFA
+              </div>
+              <div class="text-sm text-orange-500">Panier</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-6">
+          <div class="flex flex-col gap-3">
+            <!-- Première ligne : Voir Commandes et Voir Panier côte à côte -->
+            <div class="flex gap-3">
+              <button
+                onclick="openModal('commandes-{{ user.id }}')"
+                class="btn btn-outline"
+                style="
+                  flex: 1;
+                  height: 48px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 6px;
+                  font-size: 13px;
+                  font-weight: 500;
+                "
+              >
+                <i class="fas fa-list"></i>
+                Voir Commandes
+              </button>
+
+              <button
+                onclick="openModal('panier-{{ user.id }}')"
+                class="btn btn-secondary"
+                style="
+                  flex: 1;
+                  height: 48px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 6px;
+                  font-size: 13px;
+                  font-weight: 500;
+                "
+              >
+                <i class="fas fa-shopping-cart"></i>
+                Voir Panier
+              </button>
+            </div>
+
+            <!-- Deuxième ligne : Bouton Désactiver/Activer pleine largeur -->
+            {% if user.statut == 'ACTIF' %}
+            <a
+              href="{{ url_for('desactivation', user_id=user.id) }}"
+              class="btn btn-error"
+              style="
+                width: 100%;
+                height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                font-size: 14px;
+                font-weight: 500;
+                text-decoration: none;
+              "
+              onclick="return confirm('Êtes-vous sûr de vouloir désactiver ce client ?')"
+            >
+              <i class="fas fa-user-slash"></i>
+              Désactiver
+            </a>
+            {% else %}
+            <a
+              href="{{ url_for('activation', user_id=user.id) }}"
+              class="btn btn-success"
+              style="
+                width: 100%;
+                height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                font-size: 14px;
+                font-weight: 500;
+                text-decoration: none;
+              "
+            >
+              <i class="fas fa-user-check"></i>
+              Activer
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Commandes -->
+    <div id="commandes-{{ user.id }}" class="modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">
+              <i class="fas fa-receipt text-primary"></i>
+              Commandes de {{ user.username }}
+            </h3>
+            <button
+              class="modal-close"
+              onclick="closeModal('commandes-{{ user.id }}')"
+            >
+              &times;
+            </button>
+          </div>
+          <div class="modal-body">
+            {% if user.commandes %}
+            <div class="space-y-4">
+              {% for commande in user.commandes %}
+              <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex justify-between items-start mb-2">
+                  <div>
+                    <span class="font-semibold text-primary"
+                      >Commande #{{ commande.id }}</span
+                    >
+                    <p class="text-sm text-gray-600">
+                      {{ commande.date_commande.strftime('%d/%m/%Y') }}
+                    </p>
+                  </div>
+                  <span class="badge badge-warning">{{ commande.statut }}</span>
+                </div>
+                <p class="text-lg font-bold text-secondary">
+                  {{ commande.total }} CFA
+                </p>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+              <i class="fas fa-inbox text-gray-300 text-4xl mb-4"></i>
+              <p class="text-gray-500">Aucune commande trouvée</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Panier -->
+    <div id="panier-{{ user.id }}" class="modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">
+              <i class="fas fa-shopping-cart text-primary"></i>
+              Panier de {{ user.username }}
+            </h3>
+            <button
+              class="modal-close"
+              onclick="closeModal('panier-{{ user.id }}')"
+            >
+              &times;
+            </button>
+          </div>
+          <div class="modal-body">
+            {% set panier_actuel = none %} {% for panier in user.paniers %} {%
+            if not panier.valide %} {% set panier_actuel = panier %} {% endif %}
+            {% endfor %} {% if panier_actuel and panier_actuel.items %}
+            <div class="space-y-3">
+              {% for item in panier_actuel.items %}
+              <div
+                class="flex items-center gap-4 p-3 border border-gray-200 rounded-lg"
+              >
+                <img
+                  src="{{ item.livre.img_url or url_for('static', filename='img/biblio1.jpeg') }}"
+                  alt="{{ item.livre.title }}"
+                  class="w-12 h-16 object-cover rounded"
+                />
+                <div class="flex-1">
+                  <h4 class="font-semibold">{{ item.livre.title }}</h4>
+                  <p class="text-sm text-gray-600">{{ item.livre.auteur }}</p>
+                  <p class="text-sm">
+                    <span class="font-medium">Quantité:</span> {{ item.nombre }}
+                  </p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-secondary">
+                    {{ (item.nombre * item.livre.prix)|round(2) }}CFA
+                  </p>
+                </div>
+              </div>
+              {% endfor %}
+              <div class="border-t pt-3">
+                <div class="flex justify-between items-center">
+                  <span class="font-bold text-lg">Total:</span>
+                  <span class="font-bold text-xl text-primary"
+                    >{{ panier_actuel.total|round(2) }}CFA</span
+                  >
+                </div>
+              </div>
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+              <i class="fas fa-shopping-cart text-gray-300 text-4xl mb-4"></i>
+              <p class="text-gray-500">Le panier est vide</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if not users %}
+  <!-- Empty State -->
+  <div class="text-center py-16">
+    <i class="fas fa-users text-gray-300 text-8xl mb-6"></i>
+    <h3 class="text-2xl font-bold text-gray-600 mb-4">Aucun client trouvé</h3>
+    <p class="text-gray-500">
+      Les clients apparaîtront ici une fois qu'ils se seront inscrits.
+    </p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  function openModal(modalId) {
+    document.getElementById(modalId).style.display = "flex";
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = "none";
+    document.body.style.overflow = "auto";
+  }
+
+  // Fermer modal en cliquant en dehors
+  document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("modal")) {
+      event.target.style.display = "none";
+      document.body.style.overflow = "auto";
+    }
+  });
+
+  // Fonctions de filtrage pour les clients
+  window.filterClients = function () {
+    const searchValue = document
+      .getElementById("search-clients")
+      .value.toLowerCase();
+    const statusFilter = document.getElementById("filter-client-status").value;
+    const ordersFilter = document.getElementById("filter-orders-count").value;
+
+    const clientCards = document.querySelectorAll(".client-card-filter");
+
+    clientCards.forEach((card) => {
+      let showCard = true;
+
+      // Filtre par recherche (nom et email)
+      if (searchValue) {
+        const name = card.getAttribute("data-client-name");
+        const email = card.getAttribute("data-client-email");
+        if (!name.includes(searchValue) && !email.includes(searchValue)) {
+          showCard = false;
+        }
+      }
+
+      // Filtre par statut
+      if (statusFilter && showCard) {
+        const status = card.getAttribute("data-client-status");
+        if (status !== statusFilter) {
+          showCard = false;
+        }
+      }
+
+      // Filtre par nombre de commandes
+      if (ordersFilter && showCard) {
+        const ordersCount = parseInt(card.getAttribute("data-orders-count"));
+        if (ordersFilter === "no-orders" && ordersCount > 0) {
+          showCard = false;
+        } else if (
+          ordersFilter === "low" &&
+          (ordersCount === 0 || ordersCount > 5)
+        ) {
+          showCard = false;
+        } else if (
+          ordersFilter === "medium" &&
+          (ordersCount < 6 || ordersCount > 15)
+        ) {
+          showCard = false;
+        } else if (ordersFilter === "high" && ordersCount <= 15) {
+          showCard = false;
+        }
+      }
+
+      // Afficher ou cacher la carte
+      card.style.display = showCard ? "block" : "none";
+    });
+
+    updateClientResultsCount();
+  };
+
+  window.sortClients = function () {
+    const sortValue = document.getElementById("sort-clients").value;
+    const grid = document.getElementById("clients-grid");
+    const cards = Array.from(document.querySelectorAll(".client-card-filter"));
+
+    if (!sortValue) return;
+
+    cards.sort((a, b) => {
+      switch (sortValue) {
+        case "name-asc":
+          return a
+            .getAttribute("data-client-name")
+            .localeCompare(b.getAttribute("data-client-name"));
+        case "name-desc":
+          return b
+            .getAttribute("data-client-name")
+            .localeCompare(a.getAttribute("data-client-name"));
+        case "orders-desc":
+          return (
+            parseInt(b.getAttribute("data-orders-count")) -
+            parseInt(a.getAttribute("data-orders-count"))
+          );
+        case "orders-asc":
+          return (
+            parseInt(a.getAttribute("data-orders-count")) -
+            parseInt(b.getAttribute("data-orders-count"))
+          );
+        case "status-active":
+          const aStatus = a.getAttribute("data-client-status");
+          const bStatus = b.getAttribute("data-client-status");
+          if (aStatus === "ACTIF" && bStatus !== "ACTIF") return -1;
+          if (bStatus === "ACTIF" && aStatus !== "ACTIF") return 1;
+          return 0;
+        case "status-inactive":
+          const aStatusInactive = a.getAttribute("data-client-status");
+          const bStatusInactive = b.getAttribute("data-client-status");
+          if (aStatusInactive === "INACTIF" && bStatusInactive !== "INACTIF")
+            return -1;
+          if (bStatusInactive === "INACTIF" && aStatusInactive !== "INACTIF")
+            return 1;
+          return 0;
+        default:
+          return 0;
+      }
+    });
+
+    // Réorganiser les cartes dans le DOM
+    cards.forEach((card) => grid.appendChild(card));
+  };
+
+  window.resetClientFilters = function () {
+    document.getElementById("search-clients").value = "";
+    document.getElementById("filter-client-status").value = "";
+    document.getElementById("filter-orders-count").value = "";
+    document.getElementById("sort-clients").value = "";
+
+    // Réafficher toutes les cartes
+    document.querySelectorAll(".client-card-filter").forEach((card) => {
+      card.style.display = "block";
+    });
+
+    updateClientResultsCount();
+  };
+
+  function updateClientResultsCount() {
+    const visibleCards = document.querySelectorAll(
+      '.client-card-filter[style*="block"], .client-card-filter:not([style*="none"])'
+    ).length;
+    const totalCards = document.querySelectorAll(".client-card-filter").length;
+
+    console.log(`${visibleCards} clients affichés sur ${totalCards}`);
+  }
+</script>
+{% endblock %}
