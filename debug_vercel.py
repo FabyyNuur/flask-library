@@ -1,3 +1,4 @@
+# pylint: disable=broad-exception-caught
 #!/usr/bin/env python3
 """Script de debug pour tester la configuration Vercel localement."""
 

@@ -16,12 +16,19 @@ try:
     # Import de l'application principale
     from app import app
     
-    # Configuration spécifique à Vercel
-    config_path = os.path.join(parent_dir, 'config_vercel.py')
-    if os.path.exists(config_path):
-        app.config.from_pyfile(config_path)
+    # Configuration spécifique à Vercel avec Supabase
+    config_supabase_path = os.path.join(parent_dir, 'config_supabase.py')
+    config_vercel_path = os.path.join(parent_dir, 'config_vercel.py')
+    
+    if os.path.exists(config_supabase_path) and os.environ.get('DATABASE_URL'):
+        # Utiliser Supabase si DATABASE_URL est définie
+        app.config.from_pyfile(config_supabase_path)
+        print("✅ Configuration Supabase chargée")
+    elif os.path.exists(config_vercel_path):
+        app.config.from_pyfile(config_vercel_path)
+        print("✅ Configuration Vercel (mémoire) chargée")
     else:
-        # Configuration inline si le fichier n'existe pas
+        # Configuration inline si les fichiers n'existent pas
         app.config.update({
             'DEBUG': False,
             'TESTING': False,
@@ -30,6 +37,7 @@ try:
             'SQLALCHEMY_TRACK_MODIFICATIONS': False,
             'USE_SESSION_FOR_NEXT': True,
         })
+        print("✅ Configuration par défaut chargée")
     
     # Forcer certaines configurations
     app.config.update({
