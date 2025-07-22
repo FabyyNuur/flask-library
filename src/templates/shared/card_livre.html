@@ -8,7 +8,7 @@
       loading="lazy"
     />
     <!-- Badge de disponibilité -->
-    {% if livre.stock > 0  %}
+    {% if livre.disponible  %}
     <div class="badge available">
       <i class="fas fa-check-circle"></i>
       Disponible
@@ -107,7 +107,7 @@
         <i class="fas fa-info-circle"></i>
         Détails
       </a>
-      {% if current_user.is_authenticated and current_user.role != 'ADMIN' %}
+      {% if current_user.is_authenticated and current_user.role != 'ADMIN' and livre.disponible %}
       <a
         href="{{ url_for('ajoutPanier', livre_id=livre['id']) }}"
         class="book-btn book-btn-primary"

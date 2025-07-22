@@ -30,26 +30,12 @@ def activation(user_id):
     
     
     for user in users:
-        # S'assurer qu'il n'y a qu'un seul panier non validé par utilisateur
-        paniers_non_valides = Panier.query.filter_by(user_id=user.id, valide=False).all()
-        if len(paniers_non_valides) > 1:
-            # Fusionner les paniers multiples
-            panier_principal = paniers_non_valides[0]
-            for autre_panier in paniers_non_valides[1:]:
-                for item in autre_panier.items:
-                    existing_item = PanierItem.query.filter_by(panier_id=panier_principal.id, livre_id=item.livre_id).first()
-                    if existing_item:
-                        existing_item.nombre += item.nombre
-                    else:
-                        item.panier_id = panier_principal.id
-                db.session.delete(autre_panier)
-            db.session.commit()
-            user.panier = panier_principal
-        elif len(paniers_non_valides) == 1:
-            user.panier = paniers_non_valides[0]
-        else:
-            user.panier = None
-            
+        # Récupérer directement le panier actif (non validé) depuis la base de données
+        panier_actif = Panier.query.filter_by(user_id=user.id, valide=0).first() or Panier.query.filter_by(user_id=user.id, valide=False).first()
+        
+        # Attacher le panier actif à l'utilisateur pour le template
+        user.panier_actif = panier_actif
+        
         user.nombre_commandes = Commande.query.filter_by(user_id=user.id).count()
         user.commandes = Commande.query.filter_by(user_id=user.id).all()
     return render_template("admin/clients.html", users=users, current_user=current_user)
@@ -73,26 +59,12 @@ def desactivation(user_id):
     
     
     for user in users:
-        # S'assurer qu'il n'y a qu'un seul panier non validé par utilisateur
-        paniers_non_valides = Panier.query.filter_by(user_id=user.id, valide=False).all()
-        if len(paniers_non_valides) > 1:
-            # Fusionner les paniers multiples
-            panier_principal = paniers_non_valides[0]
-            for autre_panier in paniers_non_valides[1:]:
-                for item in autre_panier.items:
-                    existing_item = PanierItem.query.filter_by(panier_id=panier_principal.id, livre_id=item.livre_id).first()
-                    if existing_item:
-                        existing_item.nombre += item.nombre
-                    else:
-                        item.panier_id = panier_principal.id
-                db.session.delete(autre_panier)
-            db.session.commit()
-            user.panier = panier_principal
-        elif len(paniers_non_valides) == 1:
-            user.panier = paniers_non_valides[0]
-        else:
-            user.panier = None
-            
+        # Récupérer directement le panier actif (non validé) depuis la base de données
+        panier_actif = Panier.query.filter_by(user_id=user.id, valide=0).first() or Panier.query.filter_by(user_id=user.id, valide=False).first()
+        
+        # Attacher le panier actif à l'utilisateur pour le template
+        user.panier_actif = panier_actif
+        
         user.nombre_commandes = Commande.query.filter_by(user_id=user.id).count()
         user.commandes = Commande.query.filter_by(user_id=user.id).all()
     return render_template("admin/clients.html", users=users, current_user=current_user)
@@ -101,25 +73,15 @@ def desactivation(user_id):
 def clients():
     users = User.query.filter_by(role='USER').all()
     for user in users:
-        # S'assurer qu'il n'y a qu'un seul panier non validé par utilisateur
-        paniers_non_valides = Panier.query.filter_by(user_id=user.id, valide=False).all()
-        if len(paniers_non_valides) > 1:
-            # Fusionner les paniers multiples
-            panier_principal = paniers_non_valides[0]
-            for autre_panier in paniers_non_valides[1:]:
-                for item in autre_panier.items:
-                    existing_item = PanierItem.query.filter_by(panier_id=panier_principal.id, livre_id=item.livre_id).first()
-                    if existing_item:
-                        existing_item.nombre += item.nombre
-                    else:
-                        item.panier_id = panier_principal.id
-                db.session.delete(autre_panier)
-            db.session.commit()
-            user.panier = panier_principal
-        elif len(paniers_non_valides) == 1:
-            user.panier = paniers_non_valides[0]
-        else:
-            user.panier = None
+        # Récupérer directement le panier actif (non validé) depuis la base de données
+        panier_actif = Panier.query.filter_by(user_id=user.id, valide=0).first() or Panier.query.filter_by(user_id=user.id, valide=False).first()
+        
+        print(f"Utilisateur : {user.username} - Panier actif: {panier_actif}")
+        if panier_actif:
+            print(f"  - Panier ID {panier_actif.id}, valide={panier_actif.valide}, total={panier_actif.total}, items={len(panier_actif.items) if panier_actif.items else 0}")
+        
+        # Attacher le panier actif à l'utilisateur pour le template
+        user.panier_actif = panier_actif
             
         user.nombre_commandes = Commande.query.filter_by(user_id=user.id).count()
         user.commandes = Commande.query.filter_by(user_id=user.id).all()

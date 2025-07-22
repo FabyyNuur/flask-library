@@ -154,9 +154,8 @@ Clients {% endblock title %} {% block content %}
           >
             <div class="text-center">
               <div class="text-xl font-bold text-orange-600">
-                {% set panier_total = 0 %} {% for panier in user.paniers %} {%
-                if not panier.valide %} {% set panier_total = panier.total %} {%
-                endif %} {% endfor %} {{ (panier_total | round(2)) }}CFA
+                {% if user.panier_actif %} {{ (user.panier_actif.total |
+                round(2)) }}CFA {% else %} 0CFA {% endif %}
               </div>
               <div class="text-sm text-orange-500">Panier</div>
             </div>
@@ -317,38 +316,48 @@ Clients {% endblock title %} {% block content %}
             </button>
           </div>
           <div class="modal-body">
-            {% set panier_actuel = none %} {% for panier in user.paniers %} {%
-            if not panier.valide %} {% set panier_actuel = panier %} {% endif %}
-            {% endfor %} {% if panier_actuel and panier_actuel.items %}
-            <div class="space-y-3">
-              {% for item in panier_actuel.items %}
+            {% if user.panier_actif and user.panier_actif.items %}
+            <div class="space-y-2">
+              {% for item in user.panier_actif.items %}
               <div
-                class="flex items-center gap-4 p-3 border border-gray-200 rounded-lg"
+                class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg"
+                style="height: 90px; min-height: 90px; align-items: center"
               >
-                <img
-                  src="{{ item.livre.img_url or url_for('static', filename='img/biblio1.jpeg') }}"
-                  alt="{{ item.livre.title }}"
-                  class="w-12 h-16 object-cover rounded"
-                />
-                <div class="flex-1">
-                  <h4 class="font-semibold">{{ item.livre.title }}</h4>
-                  <p class="text-sm text-gray-600">{{ item.livre.auteur }}</p>
-                  <p class="text-sm">
-                    <span class="font-medium">Quantité:</span> {{ item.nombre }}
+                <div class="flex-shrink-0" style="width: 80px">
+                  <img
+                    src="{{ item.livre.img_url or url_for('static', filename='img/biblio1.jpeg') }}"
+                    alt="{{ item.livre.title }}"
+                    class="object-cover rounded"
+                    style="width: 70px; height: 70px"
+                  />
+                </div>
+                <div class="flex-1 min-w-0" style="flex: 1">
+                  <h4 class="font-semibold text-sm truncate mb-1">
+                    {{ item.livre.title }}
+                  </h4>
+                  <p class="text-xs text-gray-600 truncate">
+                    {{ item.livre.auteur }}
                   </p>
                 </div>
-                <div class="text-right">
-                  <p class="font-bold text-secondary">
+                <div
+                  class="flex items-center gap-2 flex-shrink-0"
+                  style="width: 60px; text-align: center"
+                >
+                  <span class="text-xs text-gray-500">Qté:</span>
+                  <span class="text-sm font-medium">{{ item.nombre }}</span>
+                </div>
+                <div class="text-right flex-shrink-0" style="width: 100px">
+                  <p class="font-bold text-secondary text-sm">
                     {{ (item.nombre * item.livre.prix)|round(2) }}CFA
                   </p>
                 </div>
               </div>
               {% endfor %}
-              <div class="border-t pt-3">
+              <div class="border-t pt-3 mt-4">
                 <div class="flex justify-between items-center">
                   <span class="font-bold text-lg">Total:</span>
                   <span class="font-bold text-xl text-primary"
-                    >{{ panier_actuel.total|round(2) }}CFA</span
+                    >{{ user.panier_actif.total|round(2) }}CFA</span
                   >
                 </div>
               </div>
