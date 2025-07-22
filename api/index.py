@@ -1,98 +1,98 @@
+"""
+Point d'entrée pour le déploiement Vercel
+"""
 import sys
 import os
 
 # Ajouter le répertoire parent au path pour pouvoir importer les modules
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
 
-from src import app
-from werkzeug.security import check_password_hash, generate_password_hash
-from src.models import User, db, Livres
-from flask import render_template, session, request, redirect
-from flask_login import (
-    LoginManager, UserMixin, login_user, login_required, 
-    current_user, logout_user
-)
+# Configuration des variables d'environnement pour la production
+os.environ['FLASK_ENV'] = 'production'
 
-# Configuration pour la production
-app.config.update({
-    'DEBUG': False,
-    'TESTING': False,
-    'SECRET_KEY': os.environ.get('SECRET_KEY', 'NurulHalbiii'),
-    'SQLALCHEMY_DATABASE_URI': os.environ.get('DATABASE_URL', 'sqlite:///bookstore.sqlite'),
-    'SQLALCHEMY_TRACK_MODIFICATIONS': False,
-    'USE_SESSION_FOR_NEXT': True
-})
-
-login_manager = LoginManager(app)
-login_manager.login_view = "login"
-login_manager.login_message = "Connecter vous pour acceder a cette page!!!😜"
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-@app.route('/login', methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        user = User.query.filter_by(username=username).first()
-        
-        if not user:
-            return render_template("layouts/login.html")
-
-        if user and user.statut == 'ACTIF' and check_password_hash(user.password, password):
-            login_user(user)
-            if current_user.role == 'USER':
-                return redirect("/shop")
-            else:
-                return redirect("/admin/bookstore")
-        else:
-            return render_template("layouts/login.html")
+try:
+    # Import de l'application principale
+    from app import app
     
-    return render_template("layouts/login.html")
+    # Configuration spécifique à Vercel
+    config_path = os.path.join(parent_dir, 'config_vercel.py')
+    if os.path.exists(config_path):
+        app.config.from_pyfile(config_path)
+    else:
+        # Configuration inline si le fichier n'existe pas
+        app.config.update({
+            'DEBUG': False,
+            'TESTING': False,
+            'SECRET_KEY': os.environ.get('SECRET_KEY', 'key-production-securisee'),
+            'SQLALCHEMY_DATABASE_URI': os.environ.get('DATABASE_URL', 'sqlite:///:memory:'),
+            'SQLALCHEMY_TRACK_MODIFICATIONS': False,
+            'USE_SESSION_FOR_NEXT': True,
+        })
+    
+    # Forcer certaines configurations
+    app.config.update({
+        'DEBUG': False,
+        'TESTING': False,
+    })
 
-@app.route('/creer-compte', methods=["GET", "POST"])
-def creer_compte():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        
-        # Vérifier si l'utilisateur existe déjà
-        existing_user = User.query.filter_by(username=username).first()
-        if existing_user:
-            return render_template("layouts/compte.html", error="Cet utilisateur existe déjà")
-        
-        # Créer un nouvel utilisateur
-        hashed_password = generate_password_hash(password)
-        new_user = User(username=username, password=hashed_password)
-        
+    # Initialisation de la base de données dans le contexte de l'app
+    with app.app_context():
         try:
-            db.session.add(new_user)
-            db.session.commit()
-            return redirect("/login")
-        except Exception as e:
-            db.session.rollback()
-            return render_template("layouts/compte.html", error="Erreur lors de la création du compte")
+            from src.models import db, User
+            # Créer toutes les tables
+            db.create_all()
+            
+            # Créer un utilisateur admin par défaut s'il n'existe pas
+            admin_user = User.query.filter_by(username='admin').first()
+            if not admin_user:
+                from werkzeug.security import generate_password_hash
+                admin = User(
+                    username='admin',
+                    password=generate_password_hash('admin123'),
+                    role='ADMIN',
+                    statut='ACTIF'
+                )
+                db.session.add(admin)
+                db.session.commit()
+                print("Utilisateur admin créé")
+                
+        except Exception as db_error:
+            print(f"Avertissement - Erreur base de données: {db_error}")
+
+    # Handler principal pour Vercel
+    def handler(request):
+        """Handler principal pour les requêtes Vercel"""
+        return app(request.environ, lambda status, headers: None)
+
+except ImportError as import_error:
+    print(f"Erreur d'import: {import_error}")
+    # Fallback : créer une app Flask minimale
+    from flask import Flask, jsonify
+    app = Flask(__name__)
     
-    return render_template("layouts/compte.html")
+    @app.route('/')
+    def error_page():
+        return jsonify({
+            "error": "Erreur de configuration",
+            "message": str(import_error)
+        }), 500
 
-@app.route("/")
-def home():
-    return render_template("layouts/base.html", current_user=current_user)
+except Exception as general_error:
+    print(f"Erreur générale: {general_error}")
+    # Fallback : créer une app Flask minimale
+    from flask import Flask, jsonify
+    app = Flask(__name__)
+    
+    @app.route('/')
+    def error_page():
+        return jsonify({
+            "error": "Erreur lors du démarrage",
+            "message": str(general_error),
+            "status": "error"
+        }), 500
 
-@app.route("/logout")
-def logout():
-    logout_user()
-    return render_template("layouts/login.html")
-
-# Cette fonction est appelée par Vercel
-def handler(request):
-    return app(request.environ, lambda status, headers: None)
-
-# Pour le développement local et les tests
-if __name__ == '__main__':
-    app.run(debug=False)
-
-# Export pour Vercel
+# Export final pour Vercel
+# C'est ce que Vercel va chercher
 app = app
