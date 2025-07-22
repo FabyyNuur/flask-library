@@ -139,7 +139,7 @@ Bord Admin {% endblock title %} {% block content %}
         data-author="{{ livre.auteur.lower() }}"
         data-price="{{ livre.prix }}"
         data-stock="{{ livre.stock }}"
-        data-available="{{ 'true' if livre.disponible else 'false' }}"
+        data-available="{{ 'true' if livre.stock > 0  else 'false' }}"
       >
         <div class="book-image-wrapper">
           <img
@@ -148,7 +148,7 @@ Bord Admin {% endblock title %} {% block content %}
             class="book-image-admin"
           />
 
-          {% if livre.disponible %}
+          {% if livre.stock > 0  %}
           <span class="book-status book-status-available">
             <i class="fas fa-check"></i>
           </span>

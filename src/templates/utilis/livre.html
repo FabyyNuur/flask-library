@@ -35,7 +35,7 @@ livre.title }} {% endblock %} {% block content %}
 
       <!-- Badge de disponibilité -->
       <div class="flex justify-center m-5">
-        {% if livre.disponible %}
+        {% if livre.stock > 0 %}
         <span class="badge badge-success flex items-center gap-2">
           <i class="fas fa-check-circle"></i>
           Disponible en stock ({{ livre.stock }} exemplaires)
@@ -79,7 +79,7 @@ livre.title }} {% endblock %} {% block content %}
       <!-- Actions -->
       {% if current_user.is_authenticated and current_user.role != 'ADMIN' %}
       <div class="space-y-3">
-        {% if livre.disponible %}
+        {% if livre.stock > 0  %}
         <a
           href="{{ url_for('ajoutPanier', livre_id=livre.id) }}"
           class="w-full btn btn-primary btn-lg flex items-center justify-center gap-3"

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Footer avec Contenu Long</title>
+    <link rel="stylesheet" href="/static/css/style_new.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main class="mt-14">
+      <div class="books-container">
+        <div class="page-header">
+          <h1 class="page-title">📜 Test Footer avec Contenu Long</h1>
+          <p class="page-description">
+            Vérification que le footer reste en bas même avec beaucoup de
+            contenu
+          </p>
+        </div>
+
+        <!-- Simuler beaucoup de contenu -->
+        <div class="orders-grid">
+          <!-- Répéter plusieurs cartes pour créer du contenu -->
+          <div class="order-card">
+            <div class="order-header">
+              <div class="order-number">📦 Commande #1</div>
+              <div class="order-status en-cours">Test</div>
+            </div>
+            <div class="order-body">
+              <div class="order-info">
+                <div class="order-info-item">
+                  <span class="order-info-label">Test</span>
+                  <span class="order-info-value">Contenu</span>
+                </div>
+                <div class="order-info-item">
+                  <span class="order-info-label">Long</span>
+                  <span class="order-info-value">Pour</span>
+                </div>
+                <div class="order-info-item">
+                  <span class="order-info-label">Tester</span>
+                  <span class="order-info-value">Footer</span>
+                </div>
+                <div class="order-info-item">
+                  <span class="order-info-label">Sticky</span>
+                  <span class="order-info-value">Behavior</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Répéter plusieurs fois pour créer du contenu -->
+          <div class="order-card">
+            <div class="order-header">
+              <div class="order-number">📦 Commande #2</div>
+              <div class="order-status validee">Test</div>
+            </div>
+            <div class="order-body">
+              <p>
+                Contenu additionnel pour faire défiler la page et tester que le
+                footer reste en bas naturellement sans flotter.
+              </p>
+            </div>
+          </div>
+
+          <div class="order-card">
+            <div class="order-header">
+              <div class="order-number">📦 Commande #3</div>
+              <div class="order-status annulee">Test</div>
+            </div>
+            <div class="order-body">
+              <p>Plus de contenu pour simuler une page longue avec scroll.</p>
+            </div>
+          </div>
+
+          <div class="order-card">
+            <div class="order-header">
+              <div class="order-number">📦 Commande #4</div>
+              <div class="order-status en-cours">Test</div>
+            </div>
+            <div class="order-body">
+              <p>
+                Encore plus de contenu pour être sûr que le comportement du
+                footer est correct.
+              </p>
+            </div>
+          </div>
+
+          <div class="order-card">
+            <div class="order-header">
+              <div class="order-number">📦 Commande #5</div>
+              <div class="order-status validee">Test</div>
+            </div>
+            <div class="order-body">
+              <p>
+                Dernier élément de contenu pour finaliser le test de scroll.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-main">
+          <div class="footer-brand">
+            <img src="/static/img/logo-nuur.png" alt="Nuur Library" />
+            <span>Nuur-Library</span>
+          </div>
+
+          <div class="footer-copyright">
+            © 2024 Nuur-Library. Tous droits réservés.
+          </div>
+
+          <div class="footer-social">
+            <a href="#" aria-label="Facebook">
+              <i class="fab fa-facebook"></i>
+            </a>
+            <a href="#" aria-label="Twitter">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" aria-label="Instagram">
+              <i class="fab fa-instagram"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

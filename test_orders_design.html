@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Design Commandes</title>
+    <link rel="stylesheet" href="/static/css/style_new.css" />
+  </head>
+  <body class="test-body">
+    <div class="orders-container">
+      <div class="page-header">
+        <h1 class="page-title">📋 Test Design Commandes</h1>
+        <p class="page-description">
+          Nouveau design moderne pour l'affichage des commandes
+        </p>
+      </div>
+
+      <div class="orders-grid">
+        <!-- Commande 1 - En Cours -->
+        <div class="order-card">
+          <div class="order-header">
+            <div class="order-number">📦 Commande #12345</div>
+            <div class="order-status en-cours">En Cours</div>
+          </div>
+          <div class="order-body">
+            <div class="order-info">
+              <div class="order-info-item">
+                <span class="order-info-label">Client</span>
+                <span class="order-info-value">nuur</span>
+              </div>
+              <div class="order-info-item">
+                <span class="order-info-label">Date</span>
+                <span class="order-info-value">22/07/2025</span>
+              </div>
+              <div class="order-info-item">
+                <span class="order-info-label">Articles</span>
+                <span class="order-info-value">3 livre(s)</span>
+              </div>
+              <div class="order-info-item">
+                <span class="order-info-label">Total</span>
+                <span class="order-info-value order-total">45,500 FCFA</span>
+              </div>
+            </div>
+            <div class="order-actions">
+              <a href="#" class="btn btn-cancel btn-sm">
+                <svg
+                  class="icon"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
+                </svg>
+                Annuler
+              </a>
+              <button class="btn btn-details btn-sm">
+                <svg
+                  class="icon"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  ></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  ></path>
+                </svg>
+                Voir Détails
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Commande 2 - Validée -->
+        <div class="order-card">
+          <div class="order-header">
+            <div class="order-number">📦 Commande #12344</div>
+            <div class="order-status validee">Validée</div>
+          </div>
+          <div class="order-body">
+            <div class="order-info">
+              <div class="order-info-item">
+                <span class="order-info-label">Client</span>
+                <span class="order-info-value">nuur</span>
+              </div>
+              <div class="order-info-item">
+                <span class="order-info-label">Date</span>
+                <span class="order-info-value">20/07/2025</span>
+              </div>
+              <div class="order-info-item">
+                <span class="order-info-label">Articles</span>
+                <span class="order-info-value">2 livre(s)</span>
+              </div>
+              <div class="order-info-item">
+                <span class="order-info-label">Total</span>
+                <span class="order-info-value order-total">32,400 FCFA</span>
+              </div>
+            </div>
+            <div class="order-actions">
+              <button class="btn btn-details btn-sm">
+                <svg
+                  class="icon"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  ></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  ></path>
+                </svg>
+                Voir Détails
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Commande 3 - Annulée -->
+        <div class="order-card">
+          <div class="order-header">
+            <div class="order-number">📦 Commande #12343</div>
+            <div class="order-status annulee">Annulée</div>
+          </div>
+          <div class="order-body">
+            <div class="order-info">
+              <div class="order-info-item">
+                <span class="order-info-label">Client</span>
+                <span class="order-info-value">nuur</span>
+              </div>
+              <div class="order-info-item">
+                <span class="order-info-label">Date</span>
+                <span class="order-info-value">18/07/2025</span>
+              </div>
+              <div class="order-info-item">
+                <span class="order-info-label">Articles</span>
+                <span class="order-info-value">1 livre(s)</span>
+              </div>
+              <div class="order-info-item">
+                <span class="order-info-label">Total</span>
+                <span class="order-info-value order-total">16,900 FCFA</span>
+              </div>
+            </div>
+            <div class="order-actions">
+              <button class="btn btn-details btn-sm">
+                <svg
+                  class="icon"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  ></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  ></path>
+                </svg>
+                Voir Détails
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- État vide pour test -->
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3 class="empty-title">Design Commandes Moderne</h3>
+        <p class="empty-description">
+          Cartes élégantes avec statuts colorés, layout responsive et actions
+          intuitives.<br />
+          Contenu centré à 75% de largeur avec paddings optimaux.
+        </p>
+        <a href="#" class="btn btn-primary">
+          <svg
+            class="icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            ></path>
+          </svg>
+          Design Validé
+        </a>
+      </div>
+    </div>
+
+    <!-- Modal de test -->
+    <div
+      class="modal"
+      style="
+        display: block;
+        position: relative;
+        z-index: 1;
+        background: rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+      "
+    >
+      <div class="modal-content" style="margin: 0 auto; max-width: 600px">
+        <div class="modal-header">
+          <h3 class="modal-title">📋 Détails Commande #12345</h3>
+          <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="order-items">
+            <div class="order-item">
+              <div class="order-item-info">
+                <h4 class="order-item-title">Captive Tome 1</h4>
+                <div class="order-item-details">
+                  <span class="order-item-price">15,000 FCFA</span>
+                  <span class="order-item-quantity">Quantité: 2</span>
+                  <span class="order-item-subtotal"
+                    >Sous-total: 30,000 FCFA</span
+                  >
+                </div>
+              </div>
+            </div>
+            <hr class="order-item-separator" />
+            <div class="order-item">
+              <div class="order-item-info">
+                <h4 class="order-item-title">Twisted Love</h4>
+                <div class="order-item-details">
+                  <span class="order-item-price">15,500 FCFA</span>
+                  <span class="order-item-quantity">Quantité: 1</span>
+                  <span class="order-item-subtotal"
+                    >Sous-total: 15,500 FCFA</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-summary">
+            <div class="order-summary-row">
+              <span class="order-summary-label">Total de la commande:</span>
+              <span class="order-summary-value">45,500 FCFA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -8,7 +8,7 @@
       loading="lazy"
     />
     <!-- Badge de disponibilité -->
-    {% if livre.disponible %}
+    {% if livre.stock > 0  %}
     <div class="badge available">
       <i class="fas fa-check-circle"></i>
       Disponible
