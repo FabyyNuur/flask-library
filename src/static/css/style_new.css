@@ -210,6 +210,44 @@ main {
   transform: translateY(-2px);
 }
 
+/* Mobile footer - hauteur réduite */
+@media (max-width: 767px) {
+  .footer {
+    padding: var(--space-4) 0; /* Réduction du padding de 32px à 16px */
+  }
+
+  .footer-content {
+    gap: var(--space-3); /* Réduction de l'espacement de 24px à 12px */
+  }
+
+  .footer-main {
+    gap: var(--space-3); /* Réduction de l'espacement de 24px à 12px */
+  }
+
+  .footer-brand {
+    gap: var(--space-2); /* Réduction de l'espacement de 12px à 8px */
+    font-size: var(--text-base); /* Réduction de la taille de police */
+  }
+
+  .footer-brand img {
+    width: 1.5rem; /* Réduction de 32px à 24px */
+    height: 1.5rem;
+  }
+
+  .footer-copyright {
+    font-size: var(--text-xs); /* Réduction de la taille de police */
+  }
+
+  .footer-social {
+    gap: var(--space-2); /* Réduction de l'espacement de 16px à 8px */
+  }
+
+  .footer-social a {
+    font-size: var(--text-base); /* Réduction de la taille des icônes */
+    padding: var(--space-1); /* Réduction du padding */
+  }
+}
+
 @media (min-width: 768px) {
   .footer-main {
     flex-direction: row;
