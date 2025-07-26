@@ -4,7 +4,9 @@ from flask_login import current_user
 from datetime import datetime
 from sqlalchemy import func,or_
 from flask import Flask
-from .utilis import app
+
+# Importer l'app et db depuis __init__.py
+from . import app, db
 from .models import (getAll,getLivrebyId,User, Panier,Bibliotheque, PanierItem,Commande,Categorie, Livres,db)
 
 

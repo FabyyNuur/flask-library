@@ -1,14 +1,8 @@
-# pylint: disable=astroid-error
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash
-from flask_migrate import Migrate # type: ignore
-from .utilis import app
+from flask_login import UserMixin
 
-from flask_login import (UserMixin)
-
-
-db = SQLAlchemy(app)
-migrate = Migrate(app,db)
+# Importer db depuis __init__.py
+from . import db
 
 livres_categories = db.Table('livres_categories',
     db.Column('livre_id', db.Integer, db.ForeignKey('livres.id'), primary_key=True),
@@ -89,6 +83,8 @@ bibliotheque_livres = db.Table('bibliotheque_livres',
     db.Column('livre_id', db.Integer, db.ForeignKey('livres.id'))
 )
 
+# Importer app pour le contexte
+from . import app
 
 with app.app_context():
     # db.drop_all()

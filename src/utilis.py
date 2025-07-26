@@ -5,12 +5,8 @@ from datetime import datetime
 from sqlalchemy import func,or_
 from flask import jsonify
 
-from flask import Flask
-
-app = Flask(__name__)
-
-app.config.from_pyfile("../config.py")
-app.app_context().push()
+# Importer l'app et db depuis __init__.py
+from . import app, db
 
 from .models import (getAll,getLivrebyId,User, Panier,Bibliotheque, PanierItem,Commande,Categorie, Livres,db)
 from flask_login import login_required, current_user

@@ -1,21 +1,17 @@
-from src import app
+from flask import Flask
+from src import app, db, login_manager
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
-from src.models import User,db,Livres
-from flask import render_template,session,request, redirect,Flask
+from src.models import User, Livres
+from flask import render_template, session, request, redirect, Flask
 from flask_login import (
-                            LoginManager,
-                            UserMixin,
-                            login_user,
-                            login_required,
-                            current_user,
-                            logout_user
-                        )
-app.config.from_pyfile("../config.py")
-
-login_manager = LoginManager(app)
-login_manager.login_view = "login"
-login_manager.login_message = "Connecter vous pour acceder a cette page!!!😜"
+    LoginManager,
+    UserMixin,
+    login_user,
+    login_required,
+    current_user,
+    logout_user
+)
 
 @login_manager.user_loader
 def load_user(user_id):
